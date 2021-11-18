@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google" value="notranslate">
+  <title>Blockly Demo:</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- <script src="/storage.js"></script> -->
+  <script src="../../blockly_compressed.js"></script>
+  <script src="../../blocks_compressed.js"></script>
+  <script src="../../javascript_compressed.js"></script>
+  <script src="../../python_compressed.js"></script>
+  <script src="../../php_compressed.js"></script>
+  <script src="../../lua_compressed.js"></script>
+  <script src="../../dart_compressed.js"></script>
+  
+  <script src="customBlocks.js"></script>
+  <script src="mutBlock.js"></script>
+  <script src="code.js"></script>
+</head>
+<body>
+  <table width="100%" height="100%">
+    <tr>
+      <td>
+        <h1><a href="https://developers.google.com/blockly/">Blockly</a>&rlm; &gt;
+          <a href="../index.html">Demos</a>&rlm; &gt;
+          <span id="title">...</span>
+        </h1>
+      </td>
+      <td class="farSide">
+        <select id="languageMenu"></select>
+        <a class="privacyLink" href="https://policies.google.com/privacy">Privacy</a>
+      </td>
+    </tr>
+    <tr>
+      <td colspan=2>
+        <table width="100%">
+          <tr id="tabRow" height="1em">
+            <td id="tab_blocks" class="tabon">...</td>
+            <td class="tabmin tab_collapse">&nbsp;</td>
+            <td id="tab_javascript" class="taboff tab_collapse">JavaScript</td>
+            <td class="tabmin tab_collapse">&nbsp;</td>
+            <td id="tab_python" class="taboff tab_collapse">Python</td>
+            <td class="tabmin tab_collapse">&nbsp;</td>
+            <td id="tab_php" class="taboff tab_collapse">PHP</td>
+            <td class="tabmin tab_collapse">&nbsp;</td>
+            <td id="tab_lua" class="taboff tab_collapse">Lua</td>
+            <td class="tabmin tab_collapse">&nbsp;</td>
+            <td id="tab_dart" class="taboff tab_collapse">Dart</td>
+            <td class="tabmin tab_collapse">&nbsp;</td>
+            <td id="tab_xml" class="taboff tab_collapse">XML</td>
+            <td class="tabmin">&nbsp;</td>
+            <td id="tab_code" class="taboff">
+              <select id="code_menu"></select>
+            </td>
+            <td class="tabmax">
+              <button id="trashButton" class="notext" title="...">
+                <img src='../../media/1x1.gif' class="trash icon21">
+              </button>
+              <button id="linkButton" class="notext" title="...">
+                <img src='../../media/1x1.gif' class="link icon21">
+              </button>
+              <button id="runButton" class="notext primary" title="...">
+                <img src='../../media/1x1.gif' class="run icon21">
+              </button>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td height="99%" colspan=2 id="content_area">
+      </td>
+    </tr>
+  </table>
+  <div id="content_blocks" class="content"></div>
+  <pre id="content_javascript" class="content prettyprint lang-js"></pre>
+  <pre id="content_python" class="content prettyprint lang-py"></pre>
+  <pre id="content_php" class="content prettyprint lang-php"></pre>
+  <pre id="content_lua" class="content prettyprint lang-lua"></pre>
+  <pre id="content_dart" class="content prettyprint lang-dart"></pre>
+  <textarea id="content_xml" class="content" wrap="off"></textarea>
+
+  <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
+
+    <category name="ATOMICS">
+      <block type="action_start" >
+      </block>
+
+      <block type="logic_boolean" >
+        <field name="BOOL">TRUE</field>
+      </block>
+      
+      <block type="math_number" >
+        <field name="NUM">123</field>
+      </block>
+      
+      <block type="text" >
+        <field name="TEXT"></field>
+      </block>
+      
+      <block type="lists_create_with" >
+        <mutation items="0"></mutation>
+      </block>
+
+      <block type="lists_create_with">
+        <mutation items="1"></mutation>
+        <value name="ADD0">
+          <block type="text">
+            <field name="TEXT"></field>
+          </block>
+        </value>
+      </block>
+
+    </category>
+
+    <category name="BASICS">
+      <category name="CREATION">
+
+        <block type="objetc_create" >
+          <value name="objName">
+            <block type="text">
+              <field name="TEXT">anObjectName</field>
+            </block>
+          </value>
+          <next>
+            <block type="objetc_property">
+              <value name="name">
+                <block type="text">
+                  <field name="TEXT">aPropertyName</field>
+                </block>
+              </value>
+              <value name="value">
+                <block type="text">
+                  <field name="TEXT">aPropertyValue</field>
+                </block>
+              </value>
+            </block>
+          </next>
+        </block>
+
+          <block type="objetc_property">
+            <value name="name">
+              <block type="text">
+                <field name="TEXT">aPropertyName</field>
+              </block>
+            </value>
+            <value name="value">
+              <block type="text">
+                <field name="TEXT">aPropertyValue</field>
+              </block>
+            </value>
+          </block>
+
+
+          <block type="method_create">
+              <value name="name">
+                <block type="text">
+                  <field name="TEXT">myMethod</field>
+                </block>
+              </value>
+              <value name="params">
+                <block type="lists_create_with">
+                  <mutation items="0"></mutation>
+                </block>
+              </value>
+              <next>
+                <block type="method_instruction">
+                  <value name="instruction">
+                    <block type="text">
+                      <field name="TEXT">anInstruction</field>
+                    </block>
+                  </value>
+                </block>
+              </next>
+            </block>
+
+          <block type="method_instruction">
+            <value name="instruction">
+              <block type="text">
+                <field name="TEXT">anInstruction</field>
+              </block>
+            </value>
+          </block>
+
+      </category>
+
+      <category name="NAMING">
+        
+        <block type="globalize">
+        </block>
+
+        <block type="printer">
+        </block>
+
+        <block type="goodLooking">
+          <value name="x">
+            <block type="text">
+              <field name="TEXT">HI</field>
+            </block>
+          </value>
+        </block>
+
+      </category>  
+      
+      <category name="EXECUTION">
+
+        <block type="method_execution">
+          <value name="anObject">
+            <block type="text">
+              <field name="TEXT">anObj</field>
+            </block>
+          </value>
+          <value name="aMethod">
+            <block type="text">
+              <field name="TEXT">aMethod</field>
+            </block>
+          </value>
+          <value name="params">
+            <block type="lists_create_with">
+              <mutation items="0"></mutation>
+            </block>
+          </value>
+        </block>
+
+      </category>
+
+    </category>
+
+  </xml>
+
+</body>
+</html>

@@ -1,0 +1,80 @@
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <block type="globalize" id="uyoQi8NUF|X{at91@HX@" x="88" y="88">
+    <value name="varname">
+      <block type="text" id=",:xuh6Zu,yf~7VTL/[()">
+        <field name="TEXT">anObj</field>
+      </block>
+    </value>
+    <value name="obj">
+      <block type="object_creator" id="l$+gKWvC@)=n|IFl.;F+">
+        <value name="name">
+          <block type="text" id="!=Es*s(Zo[,Erjg{!F*J">
+            <field name="TEXT">myObj</field>
+          </block>
+        </value>
+        <value name="properties">
+          <block type="lists_create_with" id="lzY#W~}#YD@-sN}$1i1U">
+            <mutation items="1"></mutation>
+            <value name="ADD0">
+              <block type="ramification_option" id="8i:b-S$.D[n%B99SBnbL">
+                <value name="value">
+                  <block type="text" id="gdv//,gF4njh|02a$oAs">
+                    <field name="TEXT">a</field>
+                  </block>
+                </value>
+                <value name="function">
+                  <block type="math_number" id="oJsARAb*C=cqkA1F6ZIA">
+                    <field name="NUM">1</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+      </block>
+    </value>
+  </block>
+  <block type="globalize" id="]%NaB!+q#kZsgfaFV`|p" x="87" y="188">
+    <value name="varname">
+      <block type="text" id="(O,+6A$u,T?BWx[V2;.!">
+        <field name="TEXT">aFunction</field>
+      </block>
+    </value>
+    <value name="obj">
+      <block type="instructionlist" id="|:[oy0Xo8wmSu(Hz%W_y">
+        <value name="instructions">
+          <block type="lists_create_with" id="xz@n*SbN7Zi9B6gDL67c">
+            <mutation items="1"></mutation>
+            <value name="ADD0">
+              <block type="text" id="#0x;sSK3@u)(%.yOrc;H">
+                <field name="TEXT">alert(anObj.a)</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <value name="params">
+          <block type="lists_create_with" id="-{Go|vuZ$-vNn-nGbsMr">
+            <mutation items="0"></mutation>
+          </block>
+        </value>
+      </block>
+    </value>
+  </block>
+  <block type="methodexecutionblock" id="g~KbKJ{150}k;tf9cPSK" x="88" y="288">
+    <value name="anObject">
+      <block type="text" id="tCt088o3g*kNSU3Iu}CJ">
+        <field name="TEXT">anObj</field>
+      </block>
+    </value>
+    <value name="aMethod">
+      <block type="text" id="lP2PuZYo#*`f.JbHV8jp">
+        <field name="TEXT">aFunction</field>
+      </block>
+    </value>
+    <value name="params">
+      <block type="lists_create_with" id="ss^c#C365Ul]?gS,mw{H">
+        <mutation items="0"></mutation>
+      </block>
+    </value>
+  </block>
+</xml>

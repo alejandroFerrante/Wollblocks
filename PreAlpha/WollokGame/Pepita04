@@ -1,0 +1,136 @@
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <block type="globalize" id="Zubx~Ig_5Yxr3C_ESSQ)" x="138" y="-162">
+    <value name="varname">
+      <block type="text" id="f~NRGER6tSPmIcG,Skqv">
+        <field name="TEXT">descriptorClimatico</field>
+      </block>
+    </value>
+    <value name="obj">
+      <block type="object_creator" id="KE~QT9osw0#9p3L[pSd9">
+        <value name="name">
+          <block type="text" id="SGmcJn`4A5dIWt_wP7*;">
+            <field name="TEXT">descriptorClimatico</field>
+          </block>
+        </value>
+        <value name="properties">
+          <block type="lists_create_with" id="P25(dKS{AFcYw%auZCsz">
+            <mutation items="1"></mutation>
+            <value name="ADD0">
+              <block type="ramification_option" id="uu{CQ(Lx|z2!K,_b9;|S">
+                <value name="value">
+                  <block type="text" id="fedc`y6I95)I.}rQ_83+">
+                    <field name="TEXT">estaLloviendo</field>
+                  </block>
+                </value>
+                <value name="function">
+                  <block type="logic_boolean" id="W?z$^RWbVU/LX,~ZlY|F">
+                    <field name="BOOL">FALSE</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+      </block>
+    </value>
+  </block>
+  <block type="globalize" id="Hv@dUKI{`T!qM@0)tIHy" x="137" y="-38">
+    <value name="varname">
+      <block type="text" id="w0m%`-o]D}V.akhW6Gh!">
+        <field name="TEXT">checkearSiEstaLloviendo</field>
+      </block>
+    </value>
+    <value name="obj">
+      <block type="instructionlist" id="pd[JbsM/xhv%hH^SYZuZ">
+        <value name="instructions">
+          <block type="lists_create_with" id="7U`f06bCQ=MgJ8{Y}GK6">
+            <mutation items="1"></mutation>
+            <value name="ADD0">
+              <block type="text" id="o+XlLi_Oe#H3Z-Ub#=2T">
+                <field name="TEXT">return this.estaLloviendo</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <value name="params">
+          <block type="lists_create_with" id="DAKbMN,I-@E)]VlV`A!N">
+            <mutation items="0"></mutation>
+          </block>
+        </value>
+      </block>
+    </value>
+  </block>
+  <block type="ramification" id="=sm6~G[HMbT@pfh1X3CM" x="138" y="112">
+    <value name="objectToCheck">
+      <block type="text" id="{caQ1]cB=C+)5RbN..K)">
+        <field name="TEXT">descriptorClimatico</field>
+      </block>
+    </value>
+    <value name="checkFuntion">
+      <block type="text" id="wmTVrQLT.!fD,y}lUp[z">
+        <field name="TEXT">checkearSiEstaLloviendo</field>
+      </block>
+    </value>
+    <value name="cases">
+      <block type="lists_create_with" id="ao}!S}cMP!F/:i|4:xZh">
+        <mutation items="2"></mutation>
+        <value name="ADD0">
+          <block type="ramification_option" id="r*n$GhHL/tK}5PB)U*3]">
+            <value name="value">
+              <block type="logic_boolean" id="d9%ROj,0XzevF$4~psmS">
+                <field name="BOOL">TRUE</field>
+              </block>
+            </value>
+            <value name="function">
+              <block type="instructionlist" id="WBp+2CNl`!WM[pJGF)LX">
+                <value name="instructions">
+                  <block type="lists_create_with" id=";36j7LQD@j^LOtc(*53o">
+                    <mutation items="1"></mutation>
+                    <value name="ADD0">
+                      <block type="text" id="D|wuYshX$]08m?ZfRG+*">
+                        <field name="TEXT">alert('Auto')</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <value name="params">
+                  <block type="lists_create_with" id=".wfK-O|iG2*ox;]lbXH8">
+                    <mutation items="0"></mutation>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+        <value name="ADD1">
+          <block type="ramification_option" id="A^}gKL#I[3u7)fb]}vKO">
+            <value name="value">
+              <block type="logic_boolean" id="x$U+l#Yz.+LVNLMH9#MB">
+                <field name="BOOL">FALSE</field>
+              </block>
+            </value>
+            <value name="function">
+              <block type="instructionlist" id="mav[bE%p+2-$|1LDbhR]">
+                <value name="instructions">
+                  <block type="lists_create_with" id="r02T^]hjpoi}l`!nV7EV">
+                    <mutation items="1"></mutation>
+                    <value name="ADD0">
+                      <block type="text" id="Y5y=2Bw+3mz..r)s$))o">
+                        <field name="TEXT">alert('Bici')</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <value name="params">
+                  <block type="lists_create_with" id="bleaJ:~iYk$Bb0(7:yB:">
+                    <mutation items="0"></mutation>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+      </block>
+    </value>
+  </block>
+</xml>

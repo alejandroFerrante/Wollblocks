@@ -1,0 +1,112 @@
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <block type="ramification" id="QP5!QfyjrG:KLM%J60wV" x="138" y="213">
+    <value name="objectToCheck">
+      <block type="object_creator" id="l$+gKWvC@)=n|IFl.;F+">
+        <value name="name">
+          <block type="text" id="!=Es*s(Zo[,Erjg{!F*J">
+            <field name="TEXT">myObj</field>
+          </block>
+        </value>
+        <value name="properties">
+          <block type="lists_create_with" id="lzY#W~}#YD@-sN}$1i1U">
+            <mutation items="1"></mutation>
+            <value name="ADD0">
+              <block type="ramification_option" id="8i:b-S$.D[n%B99SBnbL">
+                <value name="value">
+                  <block type="text" id="gdv//,gF4njh|02a$oAs">
+                    <field name="TEXT">a</field>
+                  </block>
+                </value>
+                <value name="function">
+                  <block type="math_number" id="oJsARAb*C=cqkA1F6ZIA">
+                    <field name="NUM">1</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+      </block>
+    </value>
+    <value name="checkFuntion">
+      <block type="instructionlist" id="z,e/E8Q+@wsVkclKlyvp">
+        <value name="instructions">
+          <block type="lists_create_with" id="0V@M8ej;lXr0].3=_(?c">
+            <mutation items="1"></mutation>
+            <value name="ADD0">
+              <block type="text" id="A9yXn]0g2Cm14quxym_f">
+                <field name="TEXT">return this.a &gt; 0</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <value name="params">
+          <block type="lists_create_with" id="{w^uJjoa(d`Yn?H^.B*O">
+            <mutation items="0"></mutation>
+          </block>
+        </value>
+      </block>
+    </value>
+    <value name="cases">
+      <block type="lists_create_with" id="0;JN1ZF{FO_m8z*nQLO8">
+        <mutation items="2"></mutation>
+        <value name="ADD0">
+          <block type="ramification_option" id="PAoNSGJ3MxB.pafz_nve">
+            <value name="value">
+              <block type="logic_boolean" id="M9MJ7Z-Zgu~JmiJ|.a]z">
+                <field name="BOOL">TRUE</field>
+              </block>
+            </value>
+            <value name="function">
+              <block type="instructionlist" id="nU,2rQv3Bt?R]dWGjwj}">
+                <value name="instructions">
+                  <block type="lists_create_with" id="*jQ3c}[0?`3ulm29g]_p">
+                    <mutation items="1"></mutation>
+                    <value name="ADD0">
+                      <block type="text" id="qI4sf?!pzDWpQQFH7t-d">
+                        <field name="TEXT">alert("Positive")</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <value name="params">
+                  <block type="lists_create_with" id="0cxi89:z=Xwzq0P#^!Q-">
+                    <mutation items="0"></mutation>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+        <value name="ADD1">
+          <block type="ramification_option" id="V(rrO{(GjG78Cg,*`sDY">
+            <value name="value">
+              <block type="logic_boolean" id="Ed*Jp/#!;6E@T|wd}YC(">
+                <field name="BOOL">TRUE</field>
+              </block>
+            </value>
+            <value name="function">
+              <block type="instructionlist" id="-}=I,7F*Y%}wKp7:lyMA">
+                <value name="instructions">
+                  <block type="lists_create_with" id="p@V,jlSx%rD+uy~;ml,7">
+                    <mutation items="1"></mutation>
+                    <value name="ADD0">
+                      <block type="text" id="F0_6Zr.Rw2WO,-E:6.RJ">
+                        <field name="TEXT">alert("Zero")</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <value name="params">
+                  <block type="lists_create_with" id="*A{)KR:$A-n[LQ]txvtG">
+                    <mutation items="0"></mutation>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+      </block>
+    </value>
+  </block>
+</xml>

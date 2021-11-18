@@ -1,0 +1,170 @@
+<xml xmlns="https://developers.google.com/blockly/xml">
+  <block type="globalize" id="CQ~bZ`K:1?R`zViU?Ak_" x="138" y="-62">
+    <value name="varname">
+      <block type="text" id="{%Pj)WKPF|gY]:kkU;D;">
+        <field name="TEXT">retornarVerdadero</field>
+      </block>
+    </value>
+    <value name="obj">
+      <block type="instructionlist" id="`n},sG1/nUN(%P7U_w-e">
+        <value name="instructions">
+          <block type="lists_create_with" id="41XgY^Npd+eUezB]#JqP">
+            <mutation items="1"></mutation>
+            <value name="ADD0">
+              <block type="text" id="5:M).[dH#_4X_}v?+j|)">
+                <field name="TEXT">return true</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <value name="params">
+          <block type="lists_create_with" id="F.9BI6dZRps23[a#c@@x">
+            <mutation items="0"></mutation>
+          </block>
+        </value>
+      </block>
+    </value>
+  </block>
+  <block type="globalize" id="W79I_?DQmE^Q[]vk:Uk9" x="138" y="37">
+    <value name="varname">
+      <block type="text" id="[8E-;d^gb:iu1~Cx:SX/">
+        <field name="TEXT">decirNombre</field>
+      </block>
+    </value>
+    <value name="obj">
+      <block type="instructionlist" id="?A8;f,jExV-M@zMu;NhL">
+        <value name="instructions">
+          <block type="lists_create_with" id="t|zB;0}Ta,V`_%+A]pmJ">
+            <mutation items="1"></mutation>
+            <value name="ADD0">
+              <block type="text" id="TR5DvFTYMb9Rm#Ym#ZG9">
+                <field name="TEXT">alert(this.name+': hola, '+saludado)</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <value name="params">
+          <block type="lists_create_with" id="D0x[s0zg*vQMa9n.z#i$">
+            <mutation items="1"></mutation>
+            <value name="ADD0">
+              <block type="text" id="I_;%_)5!4L^vC|YH=:Ob">
+                <field name="TEXT">saludado</field>
+              </block>
+            </value>
+          </block>
+        </value>
+      </block>
+    </value>
+  </block>
+  <block type="globalize" id="Zubx~Ig_5Yxr3C_ESSQ)" x="138" y="213">
+    <value name="varname">
+      <block type="text" id="f~NRGER6tSPmIcG,Skqv">
+        <field name="TEXT">pepita</field>
+      </block>
+    </value>
+    <value name="obj">
+      <block type="object_creator" id="KE~QT9osw0#9p3L[pSd9">
+        <value name="name">
+          <block type="text" id="SGmcJn`4A5dIWt_wP7*;">
+            <field name="TEXT">pepita</field>
+          </block>
+        </value>
+        <value name="properties">
+          <block type="lists_create_with" id="P25(dKS{AFcYw%auZCsz">
+            <mutation items="2"></mutation>
+            <value name="ADD0">
+              <block type="ramification_option" id="vKVrp%~fR#z)OPF*Vao(">
+                <value name="value">
+                  <block type="text" id="r1yxj3shQ#TIGL-VWFNG">
+                    <field name="TEXT">estaFeliz</field>
+                  </block>
+                </value>
+                <value name="function">
+                  <block type="text" id="_2Uz1Ctt{(Lua]%w9#gz">
+                    <field name="TEXT">retornarVerdadero</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <value name="ADD1">
+              <block type="ramification_option" id="6=!)sNxJy{~opyCGL+1s">
+                <value name="value">
+                  <block type="text" id="`=*6aR!w#EnJKe,+L:4g">
+                    <field name="TEXT">saludar</field>
+                  </block>
+                </value>
+                <value name="function">
+                  <block type="text" id="HTrs`0@@fkQI77#r;%#3">
+                    <field name="TEXT">decirNombre</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+      </block>
+    </value>
+  </block>
+  <block type="methodexecutionblock" id="ZN|vL:XH{#e_A^r8%~,k" x="138" y="413">
+    <value name="anObject">
+      <block type="text" id=";cendAA.B2n]g)VRkl@E">
+        <field name="TEXT">pepita</field>
+      </block>
+    </value>
+    <value name="aMethod">
+      <block type="instructionlist" id="11s@MgLsJ]u:XEc/%cR*">
+        <value name="instructions">
+          <block type="lists_create_with" id="uV.ne7D-zK!%X[#_fOw~">
+            <mutation items="1"></mutation>
+            <value name="ADD0">
+              <block type="text" id="8tpZY|Z|)P-.qoI(TJpp">
+                <field name="TEXT">this.saludar('pepona')</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <value name="params">
+          <block type="lists_create_with" id="^g4Yut#,weqlcjoQh8ds">
+            <mutation items="0"></mutation>
+          </block>
+        </value>
+      </block>
+    </value>
+    <value name="params">
+      <block type="lists_create_with" id="@72SvAUpu$vbLwsd7}5f">
+        <mutation items="0"></mutation>
+      </block>
+    </value>
+  </block>
+  <block type="methodexecutionblock" id="~m8D*ant2K78VvaoFvd~" x="138" y="588">
+    <value name="anObject">
+      <block type="text" id="|$a8;1L[=dx{eA{p_lJI">
+        <field name="TEXT">pepita</field>
+      </block>
+    </value>
+    <value name="aMethod">
+      <block type="instructionlist" id="Mp9CBbdnJwxlDI=RhvT5">
+        <value name="instructions">
+          <block type="lists_create_with" id="_MgA+z3;aiBTN*.z8Yua">
+            <mutation items="1"></mutation>
+            <value name="ADD0">
+              <block type="text" id="u{?9u!?^SEM8%=81!C))">
+                <field name="TEXT">alert('pepita esta feliz? '+this.estaFeliz())</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <value name="params">
+          <block type="lists_create_with" id="N[4l5Nr5w4WBB};3npre">
+            <mutation items="0"></mutation>
+          </block>
+        </value>
+      </block>
+    </value>
+    <value name="params">
+      <block type="lists_create_with" id="xb@Xj4*aAL`w4oN-DbW6">
+        <mutation items="0"></mutation>
+      </block>
+    </value>
+  </block>
+</xml>

@@ -1,0 +1,52 @@
+<html>
+<script>
+var checkPositiveQuantity = (function(){
+return objToCheck.quantity > 0
+});
+
+var decreaseQuantity = (function(){
+objToCheck.quantity--
+alert("DECREASE  "+objToCheck.quantity)
+});
+
+var alertFinished = (function(){
+alert("FINISH")
+});
+
+var objToCheck = ({ name:'myObj', quantity:123});
+
+var myFSM = { finished : false,
+ currentState: null,
+ doStep : function(){
+ if(this.currentState == null){alert("NULL CURRENT STATE");return;}
+ if(this.currentState == "END"){return;}
+ if(this[this.currentState] == undefined){alert("CURRENT STATE NOT DEFINED");return;}
+ if(! this[this.currentState] instanceof Function){alert("CURRENT STATE NOT A FUNCTION");return;}
+ this[this.currentState]();
+}
+ };
+
+var aFunction = function(){
+   if(typeof myFSM !== undefined && myFSM != undefined){
+    myFSM.currentState = 'STATE_DECREASE';
+   myFSM.STATE_DECREASE = function(){
+   var clauses = [[true,'decreaseQuantity','STATE_DECREASE'], [false,'alertFinished','END']];
+   var checkResult = checkPositiveQuantity();
+   var nextState = null;
+   for(var i = 0; i < clauses.length; i++){
+     if(checkResult == clauses[i][0]){
+       try{
+         window[clauses[i][1]]();
+       }catch(e){}
+       nextState = clauses[i][2];
+       break;
+     }
+   }
+   if(nextState != null){myFSM.currentState = nextState;}
+  };
+}
+};
+
+aFunction();
+</script>
+</html>
