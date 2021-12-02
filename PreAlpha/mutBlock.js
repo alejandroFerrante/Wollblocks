@@ -188,9 +188,99 @@ function createAlias(aliasBlockName , innerBlockName){
 
 }
 
-function createAliasXML(aliasBlockName, innerBlockXML){
+function createAliasXML(aliasBlockName, aliasBlockIconURL, paramsList, paramsReplacements, constantReplacements, innerBlockXML){
+  
+  //REGISTER BLOCK
+  var functionString = ''; 
+  functionString += 'Blockly.Blocks[\''+aliasBlockName+'\'] = {\n';
+  functionString += ' init: function() {\n';
+  functionString += '   this.appendDummyInput().appendField(new Blockly.FieldImage(\''+aliasBlockIconURL+'\', 50, 50, "*"));\n';
+  for(var i = 0; i < paramsList.length; i++){
+    functionString += '   this.appendValueInput("'+paramsList[i]+'").setCheck(null);\n';
+  }
+  functionString += '   this.setTooltip(\'\');\n';
+  functionString += 'this.setMutator(new Blockly.Mutator(""));\n';
+  functionString += ' },\n';
+  
+  functionString += ' mutationToDom : function (workspace) {\n';
+  functionString += '   var container = document.createElement(\'mutation\');return container;\n';
+  functionString += ' },\n';
 
+  
+  functionString += ' domToMutation : function (xmlElement) {\n';
+  functionString += '   this.updateShape_();\n';
+  functionString += ' },\n';
+
+  functionString += ' decompose : function (workspace) {\n';
+  functionString += '   var innerXml = \'<xml> '+innerBlockXML+' </xml>\';\n';
+  functionString += '   var newBlockId = Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(innerXml), Blockly.getMainWorkspace())[0];\n';
+  functionString += '   return Blockly.getMainWorkspace().getBlockById(newBlockId);';
+  functionString += ' },\n';
+
+  functionString += ' compose : function(containerBlock) {\n';
+  functionString += '   this.updateShape_();\n';
+  functionString += ' },\n';
+
+  functionString += ' saveConnections : function(containerBlock) {},\n';
+
+  functionString += ' updateShape_ : function() {}\n';
+
+  functionString += '};';
+
+  eval(functionString);
+  //DEFINE JS BEHAVIOUR
+  functionString = '';
+
+  functionString += 'Blockly.JavaScript[\''+aliasBlockName+'\'] = function(block) {\n';
+  functionString += '  var decomposed = block.decompose(Blockly.getMainWorkspace());\n';
+  functionString += '  var replacements = [';
+  for(var i = 0; i < constantReplacements.length; i++){
+    if(i > 0){functionString += ',';}
+    functionString += '{ k:\''+constantReplacements[i].k+'\' , v: '+constantReplacements[i].v+'}';
+  }
+  functionString +='];\n';
+  for(var i = 0; i < paramsReplacements.length; i++){
+    functionString += '   replacements.push({k:\''+paramsReplacements[i].k+'\' , v: Blockly.JavaScript.valueToCode(block, \''+paramsReplacements[i].v+'\', Blockly.JavaScript.ORDER_ATOMIC) });\n';
+  }
+  functionString += '  var code = Blockly.JavaScript[decomposed.type](decomposed);\n';
+  functionString += '  decomposed.dispose();\n';
+  functionString += '  for(var i = 0; i < replacements.length; i++){\n';
+  functionString += '    code = code.replace(replacements[i].k , replacements[i].v);\n';
+  functionString += '  }\n';
+  functionString += '  return code;\n';
+  functionString += '};\n';
+
+  eval(functionString);
+
+  //ADD TO CATEGORY
+  functionString = 'var myWorkspace = Blockly.getMainWorkspace();\n';
+  functionString += 'var xml = document.getElementById("toolbox");\n';
+  functionString += 'var cat;\n';
+  functionString += 'var categories = $(\'#toolbox\').find(\'category\'); \n';
+  functionString += 'for(var i = 0; i < categories.length; i++){\n';
+  functionString += '  if(categories[i].attributes[\'name\'].value == \'CUSTOM\' ){\n';
+  functionString += '    cat = categories[i];\n';
+  functionString += '    break;\n';
+  functionString += '  }\n';
+  functionString += '  \n';
+  functionString += '}\n';
+  functionString += 'if(cat != undefined && cat != null){\n';
+  functionString += '  var xmlDoc = new DOMParser().parseFromString(\'<block type="'+aliasBlockName+'"></block>\', \'text/xml\');\n';
+  functionString += '  cat.appendChild(xmlDoc.documentElement);\n';
+  functionString += '  myWorkspace.updateToolbox(xml);\n';
+  functionString += '  Blockly.getMainWorkspace().getToolbox().clearSelection();\n';
+  functionString += '}\n';
+
+  //functionString = 'var category = Blockly.getMainWorkspace().getToolbox().getToolboxItemById(\'custom\');\n';
+  //functionString += 'var blockToSet = Blockly.getMainWorkspace().newBlock(\''+aliasBlockName+'\');\n';
+  //functionString += 'category.getContents().push({kind:\'BLOCK\' , type:\''+aliasBlockName+'\' , blockxml: blockToSet });\n';
+  
+  functionString += 'Blockly.getMainWorkspace().getToolbox().clearSelection();\n';
+
+  eval(functionString);
 }
+
+//createAliasXML('prettyPrinter', 'talk.png', ['message'], [{k:'__printer___toPrint__' , v: 'message'}], [{k:'__printer___header__' , v:'\'say\''}], '<xml><block type="printer"></block></xml>');
 
 function createBlockWithImage(aBlockName , anImageUrl, width, height ){
   Blockly.Blocks[aBlockName] = {
@@ -202,6 +292,7 @@ function createBlockWithImage(aBlockName , anImageUrl, width, height ){
     }
   };
 }
+
 
 //createAlias('goodLooking' , 'printer')
 /*

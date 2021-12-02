@@ -38,6 +38,7 @@ Blockly.JavaScript['action_start'] = function(block) { return ''; };
 //=============================================================================================================================================
 //=============================================================================================================================================
 
+/*
 Blockly.Blocks['objetc_create'] = {
   init: function() {
     this.appendDummyInput()
@@ -67,9 +68,11 @@ Blockly.Blocks['objetc_create'] = {
       code += ' __objetc_create___objName__ ';
     }
 
+    
     if(self.nextConnection.targetConnection == null || self.nextConnection.targetBlock().type != 'objetc_property'){
       code += ' };\n';
     }
+    
     return code;
   }
 };
@@ -79,7 +82,56 @@ Blockly.JavaScript['objetc_create'] = function(block) {
   var code = Blockly.Blocks['objetc_create'].doActionJS(block,{'objName':value_objname});
   return code;
 };
+*/
 
+Blockly.Blocks['objetc_create'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("OBJECT");
+    this.appendValueInput("objName")
+        .setCheck("String")
+        .appendField("Named");
+    this.appendStatementInput('properties')
+    .appendField('');
+    this.setPreviousStatement(true, null);
+    this.setTooltip('');
+    this.setHelpUrl('http://www.example.com/');
+  },doActionJS : function(self, paramsMap){
+    if(! Blockly.Blocks['action_start'].isLinkedToActionStart(self)){return '';}
+
+    var value_objname = paramsMap['objName'];
+    var value_properties = paramsMap['properties']; 
+    var code = 'var ';
+    if(value_objname != undefined && value_objname != null && value_objname != ''){
+      code += value_objname.replaceAll("'","");
+    }else{
+      code += ' __objetc_create___objName__ ';
+    } 
+    code += ' = { name:';
+    if(value_objname != undefined && value_objname != null && value_objname != ''){
+      code += value_objname;
+    }else{
+      code += ' __objetc_create___objName__ ';
+    }
+
+    if(value_properties != undefined && value_properties != null){
+      code += value_properties;
+    }else{
+      code += ' __object_create___value_properties__ ';
+    }
+    
+    code += ' };\n';
+    
+    return code;
+  }
+};
+
+Blockly.JavaScript['objetc_create'] = function(block) {
+  var value_objname = Blockly.JavaScript.valueToCode(block, 'objName', Blockly.JavaScript.ORDER_ATOMIC);
+  var value_properties = Blockly.JavaScript.statementToCode(block, 'properties');
+  var code = Blockly.Blocks['objetc_create'].doActionJS(block,{'objName':value_objname , 'properties':value_properties});
+  return code;
+};
 
 Blockly.Blocks['objetc_property'] = {
   init: function() {
@@ -114,9 +166,9 @@ Blockly.Blocks['objetc_property'] = {
       code += ' __objetc_property___value__ '
     }
 
-    if(self.nextConnection.targetConnection == null || self.nextConnection.targetBlock().type != 'objetc_property'){
-      code += ' };\n';
-    }  
+    //if(self.nextConnection.targetConnection == null || self.nextConnection.targetBlock().type != 'objetc_property'){
+    //  code += ' };\n';
+    //}  
 
     return code;
   }
@@ -134,6 +186,7 @@ Blockly.JavaScript['objetc_property'] = function(aBlock) {
 //=============================================================================================================================================
 //=============================================================================================================================================
 
+/*
 Blockly.Blocks['method_create'] = {
   init: function() {
     this.appendValueInput("name")
@@ -145,8 +198,8 @@ Blockly.Blocks['method_create'] = {
     this.appendDummyInput()
         .appendField("AND INSTRUCTIONS");
     this.setInputsInline(false);
-    this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
+    this.setPreviousStatement(true, null);
     this.setTooltip('');
   },doActionJS:function(self, paramsMap){
     if(! Blockly.Blocks['action_start'].isLinkedToActionStart(self)){return '';}
@@ -167,9 +220,7 @@ Blockly.Blocks['method_create'] = {
     }
     code += '){';
 
-    if(self.nextConnection.targetConnection == null || self.nextConnection.targetBlock().type != 'method_instruction'){
-      code += ' \n};\n';
-    }
+    code += ' \n};\n';
     return code;  
   }};
 
@@ -177,6 +228,62 @@ Blockly.Blocks['method_create'] = {
     var value_name = Blockly.JavaScript.valueToCode(block, 'name', Blockly.JavaScript.ORDER_ATOMIC);
     var value_params = Blockly.JavaScript.valueToCode(block, 'params', Blockly.JavaScript.ORDER_ATOMIC);
     var code = Blockly.Blocks['method_create'].doActionJS(block,{'name':value_name , 'params':value_params });
+    return code;
+  };
+*/
+
+Blockly.Blocks['method_create'] = {
+  init: function() {
+    this.appendValueInput("name")
+        .setCheck("String")
+        .appendField("METHOD");
+    this.appendValueInput("params")
+        .setCheck("Array")
+        .appendField("with params:");
+    this.appendDummyInput()
+        .appendField("AND INSTRUCTIONS");
+    this.appendStatementInput('instructions')
+    .appendField('');
+    this.setInputsInline(false);
+    this.setPreviousStatement(true, null);
+    this.setTooltip('');
+  },doActionJS:function(self, paramsMap){
+    if(! Blockly.Blocks['action_start'].isLinkedToActionStart(self)){return '';}
+
+    var value_name = paramsMap['name'];
+    var value_params = paramsMap['params'];
+    var value_instructions = paramsMap['instructions'];
+    var code = 'var ';
+    if(value_name != undefined && value_name != null && value_name != ''){
+      code += value_name.replaceAll("'",""); 
+    }else{
+      code += ' __method_create___name__ ';
+    }
+    code += ' = function(';
+    if(value_params != undefined && value_params != null && value_params != ''){
+      code += (''+value_params).replaceAll(']','').replaceAll('[','').replaceAll("'",""); 
+    }else{
+      code += ' __method_create___params__ ';
+    }
+    code += '){\n';
+
+    if(value_instructions != undefined && value_instructions != null && value_instructions != ''){
+      code += value_instructions.replaceAll("'",""); 
+    }else{
+      code += ' __method_create___instructions__ ';
+    }
+
+    //if(self.nextConnection.targetConnection == null || self.nextConnection.targetBlock().type != 'method_instruction'){
+    code += '};\n';
+    //}
+    return code;  
+  }};
+
+  Blockly.JavaScript['method_create'] = function(block) {
+    var value_name = Blockly.JavaScript.valueToCode(block, 'name', Blockly.JavaScript.ORDER_ATOMIC);
+    var value_params = Blockly.JavaScript.valueToCode(block, 'params', Blockly.JavaScript.ORDER_ATOMIC);
+    var value_instructions = Blockly.JavaScript.statementToCode(block, 'instructions');
+    var code = Blockly.Blocks['method_create'].doActionJS(block,{'name':value_name , 'params':value_params , 'instructions':value_instructions });
     return code;
   };
 
@@ -193,17 +300,17 @@ Blockly.Blocks['method_instruction'] = {
       if(! Blockly.Blocks['action_start'].isLinkedToActionStart(self)){return '';}
 
       var value_instruction = paramsMap['instruction'];
-      var code = ' \n ';
+      var code = '';
       if(value_instruction != undefined && value_instruction != null && value_instruction != ''){
         code += value_instruction.replaceAll("'","");
       }else{
         code += ' __method_instruction___instruction__ ';
       }
-      code +=';';
+      code +=';\n';
 
-      if(self.nextConnection.targetConnection == null || self.nextConnection.targetBlock().type != 'method_instruction'){
-        code += ' \n};\n';
-      }
+      //if(self.nextConnection.targetConnection == null || self.nextConnection.targetBlock().type != 'method_instruction'){
+      //  code += ' \n};\n';
+      //}
 
       return code;
   }};
@@ -283,6 +390,7 @@ Blockly.Blocks['method_execution'] = {
     this.appendValueInput("params")
         .setCheck("Array")
         .appendField("WITH PARAMS");
+
     this.setColour(60);
  this.setPreviousStatement(true, null);
  this.setNextStatement(true, null);
@@ -341,3 +449,6 @@ Blockly.JavaScript['method_execution'] = function(block) {
 //=============================================================================================================================================
 //=============================================================================================================================================
 //=============================================================================================================================================
+
+
+    
