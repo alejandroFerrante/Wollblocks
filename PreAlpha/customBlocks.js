@@ -451,4 +451,96 @@ Blockly.JavaScript['method_execution'] = function(block) {
 //=============================================================================================================================================
 
 
-    
+/////////////////////////////////////////////////////////
+//By David Walsh https://davidwalsh.name/convert-xml-json
+/////////////////////////////////////////////////////////
+function xmlToJson(xml) {
+  
+  // Create the return object
+  var obj = {};
+
+  if (xml.nodeType == 1) { // element
+    // do attributes
+    if (xml.attributes.length > 0) {
+    obj["@attributes"] = {};
+      for (var j = 0; j < xml.attributes.length; j++) {
+        var attribute = xml.attributes.item(j);
+        obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+      }
+    }
+  } else if (xml.nodeType == 3) { // text
+    obj = xml.nodeValue;
+  }
+
+  // do children
+  if (xml.hasChildNodes()) {
+    for(var i = 0; i < xml.childNodes.length; i++) {
+      var item = xml.childNodes.item(i);
+      var nodeName = item.nodeName;
+      if (typeof(obj[nodeName]) == "undefined") {
+        obj[nodeName] = xmlToJson(item);
+      } else {
+        if (typeof(obj[nodeName].push) == "undefined") {
+          var old = obj[nodeName];
+          obj[nodeName] = [];
+          obj[nodeName].push(old);
+        }
+        obj[nodeName].push(xmlToJson(item));
+      }
+    }
+  }
+  return obj;
+}
+
+function xmlToObj(xml) {
+  if(xml.childNodes.length > 0){
+    return parseContent(xml.childNodes[0]);
+  }else{
+    return {};
+  } 
+}
+
+function parseContent(xmlBlock){
+  var obj = {};
+
+  if(xmlBlock.getAttribute('type') == 'math_number'){
+    obj.type  = xmlBlock.getAttribute('type');
+    obj.value = xmlBlock.childNodes[0].childNodes[0].nodeValue;
+    return obj;
+  }
+
+  if(xmlBlock.getAttribute('type') == 'text'){
+    obj.type  = xmlBlock.getAttribute('type');
+    if(xmlBlock.childNodes[0].childNodes.length > 0){
+      obj.value = xmlBlock.childNodes[0].childNodes[0].nodeValue;
+    }else{
+      obj.value = '';
+    }
+    return obj;
+  } 
+  
+  if(xmlBlock.getAttribute('type') == 'logic_boolean'){
+    obj.type  = 'logic_boolean';
+    if(xmlBlock.childNodes[0].childNodes[0].nodeValue){
+      obj.value = true;
+    }else{
+      obj.value = false;
+    }
+    return obj;
+  }
+
+  if(xmlBlock.getAttribute('type') == 'lists_create_with'){
+    obj.type  = 'lists_create_with';
+    var content = [];
+    var elem;
+    //first element is always mutator
+    for(var i = 1; i < xmlBlock.childNodes.length; i++ ){
+      elem = xmlBlock.childNodes[i].childNodes[0];
+      content.push(parseContent(elem));
+    }
+    obj.value = content;
+    return obj;
+  }
+
+
+}

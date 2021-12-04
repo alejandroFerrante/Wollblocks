@@ -26,6 +26,8 @@ Blockly.Blocks['mutation_test'] = {
     this.updateShape_();	
   },
   decompose: function (workspace) {
+    
+
     var containerBlock = workspace.newBlock('mutation_container');
     containerBlock.initSvg();
 	
@@ -52,6 +54,7 @@ Blockly.Blocks['mutation_test'] = {
   	}
   	
     return containerBlock;
+
   },
   compose: function(containerBlock) {	  
     this.updateShape_();	
@@ -64,7 +67,7 @@ Blockly.Blocks['mutation_test'] = {
 
 
 Blockly.JavaScript['mutation_container'] = function(block) {
-  alert('HERE');
+  
 }
 
 
@@ -199,11 +202,12 @@ function createAliasXML(aliasBlockName, aliasBlockIconURL, paramsList, paramsRep
     functionString += '   this.appendValueInput("'+paramsList[i]+'").setCheck(null);\n';
   }
   functionString += '   this.setTooltip(\'\');\n';
-  functionString += 'this.setMutator(new Blockly.Mutator(""));\n';
+  functionString += '   this.setMutator(new Blockly.Mutator(""));\n';
   functionString += ' },\n';
   
   functionString += ' mutationToDom : function (workspace) {\n';
-  functionString += '   var container = document.createElement(\'mutation\');return container;\n';
+  functionString += '   var container = document.createElement(\'mutation\');\n';
+  functionString += '   return container;\n';
   functionString += ' },\n';
 
   
@@ -212,9 +216,14 @@ function createAliasXML(aliasBlockName, aliasBlockIconURL, paramsList, paramsRep
   functionString += ' },\n';
 
   functionString += ' decompose : function (workspace) {\n';
+  //functionString += '   var containerBlock = workspace.newBlock(\'printer\');\n';////////////////////////////////////////////
+  //functionString += '   containerBlock.initSvg();';
+  //functionString += '   return containerBlock';
+  
   functionString += '   var innerXml = \'<xml> '+innerBlockXML+' </xml>\';\n';
-  functionString += '   var newBlockId = Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(innerXml), Blockly.getMainWorkspace())[0];\n';
-  functionString += '   return Blockly.getMainWorkspace().getBlockById(newBlockId);';
+  functionString += '   var newBlockId = Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(innerXml), workspace)[0];\n';
+  functionString += '   workspace.getBlockById(newBlockId).initSvg();';
+  functionString += '   return workspace.getBlockById(newBlockId);';
   functionString += ' },\n';
 
   functionString += ' compose : function(containerBlock) {\n';
