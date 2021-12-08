@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+  <meta name="google" value="notranslate">
+  <title>Blockly Demo:</title>
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="../../closure/goog/base.js"></script>
+  <script src="../../blockly_compressed.js"></script>
+  <script src="../../blocks_compressed.js"></script>
+  <script src="../../javascript_compressed.js"></script>
+  
+
+  <script src="woblockSpace.js"></script>
+  <script src="woblocks_blocks.js"></script>
+
+  <style>
+  	#box{
+	  width: 500px;
+	  overflow: hidden;
+	  box-shadow: 0 0 10px black;
+	  border-radius: 10px;
+	  position: absolute;
+	  top: 50%;
+	  left: 50%;
+	  transform: translate(-50%, -50%);
+	  z-index: 9999;
+	  padding: 10px;
+	  text-align: center;
+	  display: none;
+	}
+	#box span{
+	  font-size: 15px;
+	  display: block;
+	  margin: 20px 0;
+	}
+	#box h1{
+	  color: brown
+	}
+	.close{
+	  font-size: 18px;
+	  color: white;
+	  padding: 10px 20px;
+	  cursor: pointer;
+	  background: rgb(111, 111, 223);
+	  display: inline-block;
+	  border-radius: 1px solid #000;
+	}
+  </style>
+
+</head>
+
+<body>
+
+<!-- TABS -->
+	<table id="tabsTable">
+		<tr><td><button tabIndex="0" class="tabButton" onclick="ontabClick(0)" ><b>Escena</b></button></td><td><button tabIndex="1" class="tabButton" onclick="ontabClick(1)">Area Libre</button></td><td><button onclick="showModal()">+</button></td></tr>
+	</table>
+
+<!-- MAIN CONTAINER -->
+	<table>
+  		<tr>
+  			<td><div id="blocklyDiv" style="height: 650px; width: 1000px;"></div></td>
+  			<td>
+  				<div id="sceneDiv" style="height: 650px; width:800px; padding-top:5px;">
+  					<h3 style="text-align: center;">Escena</h3>
+  				</div>
+  			</td>
+  		</tr>
+  		<tr>
+  			<td>
+  				<div id="codeDiv" style="height: 250px; width: 1000px;">
+  					<h3 style="text-align: center;">Codigo Generado</h3>
+  					<button id="code_generate" >Generar</button>
+  					<div id="code_container"></div>
+  				</div>
+  			</td>
+		</tr>
+	</table>
+
+  <xml xmlns="http://www.w3.org/1999/xhtml" id="workspaceBlocks" style="display:none"></xml>
+
+<!-- MODAL -->
+	<div id="box">
+	    <i class="fas fa-check-circle"></i> 
+	    <h3>Nueva Variable Global</h3>
+	    <input type="text" id="newGlobalName">
+	    <button onclick="closeModal()" >cerrar</button>
+		<button onclick="createNewGlobal()" >crear</button>
+	 </div>
+
+<!-- TOOLBOX -->
+  <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
+
+    <category name="ATOMICS" toolboxitemid="atomics">
+
+      <block type="logic_boolean" >
+        <field name="BOOL">TRUE</field>
+      </block>
+      
+      <block type="math_number" >
+        <field name="NUM">123</field>
+      </block>
+      
+      <block type="text" >
+        <field name="TEXT"></field>
+      </block>
+      
+      <block type="lists_create_with" >
+        <mutation items="0"></mutation>
+      </block>
+
+      <block type="lists_create_with">
+        <mutation items="1"></mutation>
+        <value name="ADD0">
+          <block type="text">
+            <field name="TEXT"></field>
+          </block>
+        </value>
+      </block>
+
+    </category>
+
+    <category name="CREATION">
+          
+	  <block type="action_start" >
+	  </block>
+
+	  <block type="action_start">
+	    <next>
+	      <block type="objetc_create">
+	        <value name="objName">
+	          <block type="text">
+	            <field name="TEXT">anObjectName</field>
+	          </block>
+	        </value>
+	        <statement name="properties">
+	          <block type="objetc_property">
+	            <value name="name">
+	              <block type="text">
+	                <field name="TEXT">aPropertyName</field>
+	              </block>
+	            </value>
+	            <value name="value">
+	              <block type="text">
+	                <field name="TEXT">aPropertyValue</field>
+	              </block>
+	            </value>
+	          </block>
+	        </statement>
+	      </block>
+	    </next>
+	  </block>
+
+      <block type="objetc_property">
+        <value name="name">
+          <block type="text">
+            <field name="TEXT">aPropertyName</field>
+          </block>
+        </value>
+        <value name="value">
+          <block type="text">
+            <field name="TEXT">aPropertyValue</field>
+          </block>
+        </value>
+      </block>
+ 
+	 <block type="action_start">
+	    <next>
+	      <block type="method_create">
+	        <value name="name">
+	          <block type="text">
+	            <field name="TEXT">aMethodName</field>
+	          </block>
+	        </value>
+	        <value name="params">
+	          <block type="lists_create_with">
+	            <mutation items="0"></mutation>
+	          </block>
+	        </value>
+	        <statement name="instructions">
+	          <block type="method_instruction">
+	            <value name="instruction">
+	              <block type="text">
+	                <field name="TEXT">anInstruction</field>
+	              </block>
+	            </value>
+	          </block>
+	        </statement>
+	      </block>
+	    </next>
+	  </block>
+
+      <block type="method_instruction">
+        <value name="instruction">
+          <block type="text">
+            <field name="TEXT">anInstruction</field>
+          </block>
+        </value>
+      </block>
+
+      </category>
+
+    <category name="CUSTOM" toolboxitemid="custom" >
+    </category>
+
+  </xml>
+</body>
+
+<script>
+	
+	window.onload = function() {
+  		spaceInit();
+	};
+
+	$( "#code_generate" ).click(function() {
+		$('#code_container')[0].innerHTML = getJSCodeForCurrentWorkspace().replaceAll('\n','<br/>');
+	});
+
+	function ontabClick(newIndex){
+		
+		if(newIndex != tabIndex){
+			//save current content
+			if(tabIndex < tabsXmlContent.length ){ //this function is called when tab is delted, so current index may be inexisting
+				var xmlSerializer = new XMLSerializer();
+				var contentList = getWorkspaceXmlContentAsList();
+				tabsXmlContent[tabIndex].content = [];
+				for(var i = 0; i < contentList.length; i++){
+					tabsXmlContent[tabIndex].content.push(xmlSerializer.serializeToString(contentList[i]));
+				}
+			}
+
+			//load new content
+			injectXmlToWorkspace(tabsXmlContent[newIndex].content);
+				
+			//update tab index
+			tabIndex = newIndex;
+
+			//redraw tabs
+			redrawTabs();
+		}
+		
+	}
+
+	function redrawTabs(){
+		var innerHtml = '';
+		innerHtml += '<tr>';
+		
+		innerHtml += '<td><button tabIndex="0" class="tabButton" onclick="ontabClick(0)">';
+		if(tabIndex == 0){
+			innerHtml += '<b>Escena</b>';
+		}else{
+			innerHtml += 'Escena';
+		}
+		innerHtml += '</button></td>';
+
+		innerHtml += '<td><button tabIndex="1" class="tabButton" onclick="ontabClick(1)">';
+		if(tabIndex == 1){
+			innerHtml += '<b>Area Libre</b>';
+		}else{
+			innerHtml += 'Area Libre';
+		}
+		innerHtml += '</button></td>';
+
+		for(var i = 0;i < globals.length; i++){
+			innerHtml += '<td><button tabIndex="'+(i+2)+'" class="tabButton" onclick="ontabClick('+(i+2)+')">';
+			if(tabIndex == (i+2)){
+				innerHtml += '<b>'+globals[i]+'</b>';
+			}else{
+				innerHtml += ''+globals[i];
+			}
+			innerHtml += '<button onclick="removeGlobalWithIndex('+(i+2)+')">x</button>';
+			innerHtml += '</button></td>';
+		}
+
+		innerHtml += '<td><button onclick="showModal()" >+</button></td></tr>';
+		innerHtml += '</tr>';
+
+
+		$('#tabsTable')[0].innerHTML = innerHtml;
+	}
+
+	function addGlobalNamed(aGlobalName,contentLIst){
+		globals.push(aGlobalName);
+		tabsXmlContent.push({name:aGlobalName , content:contentLIst});
+		ontabClick(1 + globals.length);
+	}
+
+	function removeGlobalWithIndex(anIndex){
+		globals.splice(anIndex-2, 1);
+		tabsXmlContent.splice(anIndex, 1);
+		ontabClick(anIndex-1);
+	}
+
+	function closeModal(){
+		document.getElementById("box").style.display = "none";
+	}
+
+	function showModal(){
+		document.getElementById("box").style.display = "block";	
+	}
+
+	function createNewGlobal(CREATION_MODE){
+		var proposedGlobalName = $('#newGlobalName').val();
+		if(proposedGlobalName != undefined && proposedGlobalName != null && proposedGlobalName != ''){
+			if(globals.includes(proposedGlobalName)){
+				alert('La Variable global ya existe!');
+			}else{
+				var content_tmp = [];
+				if(CREATION_MODE == 'SAVE_WORKSPACE'){
+					var xmlSerializer = new XMLSerializer();
+					var contentList = getWorkspaceXmlContentAsList();
+					tabsXmlContent[tabIndex].content = [];
+					for(var i = 0; i < contentList.length; i++){
+						content_tmp.push(xmlSerializer.serializeToString(contentList[i]));
+					}
+				}			
+				addGlobalNamed(proposedGlobalName,content_tmp);
+			}
+			$('#newGlobalName').val('');
+			document.getElementById("box").style.display = "none";
+		}
+	}
+
+
+</script>
+
+</html>
