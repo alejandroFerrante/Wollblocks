@@ -1,13 +1,25 @@
 var toolbox;
 var workspace
-var tabsXmlContent;
-var tabIndex = 0;
-var globals = [];
+var definedObjectNames;
+var definedBehaviourNames;
+var definedObjectXmlContent;
+var definedBehaviourXmlContent;
+var sceneXmlContent;
+var freeAreaXmlContent;
+var currentTab;
+var currentIndex;
 
 function spaceInit(){
-	tabsXmlContent = [];
-	tabsXmlContent.push({name:'Scene',content:[]});
-	tabsXmlContent.push({name:'Playground',content:[]});
+	definedObjectNames = [];
+	definedBehaviourNames = [];
+	definedObjectXmlContent = [];
+	definedBehaviourXmlContent = [];
+	sceneXmlContent = [];
+	freeAreaXmlContent = [];
+	currentTab = 'Scene';
+	currentIndex = -1;
+	//tabsXmlContent.push({name:'Scene',content:[]});
+	//tabsXmlContent.push({name:'Playground',content:[]});
 
 	var toolbox = document.getElementById("toolbox");
 	 

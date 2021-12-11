@@ -56,7 +56,9 @@
 
 <!-- TABS -->
 	<table id="tabsTable">
-		<tr><td><button tabIndex="0" class="tabButton" onclick="ontabClick(0)" ><b>Escena</b></button></td><td><button tabIndex="1" class="tabButton" onclick="ontabClick(1)">Area Libre</button></td><td><button onclick="showModal()">+</button></td></tr>
+		<tr><td><button id="sceneTab" class="tabButton" onclick="ontabClick('Scene',-1)" ><b>Escena</b></button></td><td><button id="freeAreaTab" class="tabButton" onclick="ontabClick('FreeArea',-1)">Area Libre</button></td></tr>
+		<tr><td><button onclick="showNewTabObjectModal()">+</button></td><td>Objetos</td></tr>
+		<tr><td><button onclick="showNewTabBehaviourModal()">+</button></td><td>Comportamientos</td></tr>
 	</table>
 
 <!-- MAIN CONTAINER -->
@@ -85,10 +87,16 @@
 <!-- MODAL -->
 	<div id="box">
 	    <i class="fas fa-check-circle"></i> 
-	    <h3>Nueva Variable Global</h3>
+	    <h3 id="modalTitle"></h3>
 	    <input type="text" id="newGlobalName">
-	    <button onclick="closeModal()" >cerrar</button>
-		<button onclick="createNewGlobal()" >crear</button>
+	    <br/><br/>
+	    <table style="margin-left: auto;margin-right: auto;">
+	    	<tr>
+			    <td><button onclick="closeModal()" >cerrar</button></td>
+				<td id="createNewTabObjectButton"><button onclick="createNewTabObject()"    >crear</button></td>
+				<td id="createNewTabBehaviourButton"><button onclick="createNewTabBehaviour()" >crear</button></td>
+	 		</tr>
+	 	</table>
 	 </div>
 
 <!-- TOOLBOX -->
@@ -210,7 +218,7 @@
 </body>
 
 <script>
-	
+
 	window.onload = function() {
   		spaceInit();
 	};
@@ -219,105 +227,184 @@
 		$('#code_container')[0].innerHTML = getJSCodeForCurrentWorkspace().replaceAll('\n','<br/>');
 	});
 
-	function ontabClick(newIndex){
+	function ontabClick(newTab,newIndex){
 		
-		if(newIndex != tabIndex){
+		if(newTab == 'Scene' || newTab == 'FreeArea' || ( (newTab == 'Object' || newTab == 'Behaviour') && newIndex != currentIndex) ){
+			
 			//save current content
-			if(tabIndex < tabsXmlContent.length ){ //this function is called when tab is delted, so current index may be inexisting
-				var xmlSerializer = new XMLSerializer();
-				var contentList = getWorkspaceXmlContentAsList();
-				tabsXmlContent[tabIndex].content = [];
-				for(var i = 0; i < contentList.length; i++){
-					tabsXmlContent[tabIndex].content.push(xmlSerializer.serializeToString(contentList[i]));
+			if( currentTab == 'Scene' || currentTab == 'FreeArea' ||( (currentTab == 'Object' || currentTab == 'Behaviour') && currentIndex != -1 ) ){ 
+				var xmlContentList = null;
+				if(currentTab == 'Object'){xmlContentList = definedObjectXmlContent;}
+				if(currentTab == 'Behaviour'){xmlContentList = definedBehaviourXmlContent;}
+				if(currentTab == 'Scene'){xmlContentList = sceneXmlContent;}
+				if(currentTab == 'FreeArea'){xmlContentList = freeAreaXmlContent;}
+				if(xmlContentList != undefined && xmlContentList != null){
+					var xmlSerializer = new XMLSerializer();
+					var contentList = getWorkspaceXmlContentAsList();
+					if(currentTab == 'Scene' || currentTab == 'FreeArea'){
+						for(var i = 0; i < contentList.length; i++){
+							xmlContentList.push(xmlSerializer.serializeToString(contentList[i]));
+						}
+					}else{
+						xmlContentList[currentIndex] = [];
+						for(var i = 0; i < contentList.length; i++){
+							xmlContentList[currentIndex].push(xmlSerializer.serializeToString(contentList[i]));
+						}
+					}
 				}
 			}
 
 			//load new content
-			injectXmlToWorkspace(tabsXmlContent[newIndex].content);
-				
-			//update tab index
-			tabIndex = newIndex;
+			workspace.clear();
+			var newContent = null;
+			if(newTab == 'Scene' && sceneXmlContent != undefined && sceneXmlContent != null){newContent = sceneXmlContent;}
+			if(newTab == 'FreeArea' && freeAreaXmlContent != undefined && freeAreaXmlContent != null){newContent = freeAreaXmlContent;}
+			if(newTab == 'Object' && newIndex >= 0 && newIndex < definedObjectXmlContent.length){newContent = definedObjectXmlContent[newIndex];}
+			if(newTab == 'Behaviour' && newIndex >= 0 && newIndex < definedBehaviourXmlContent.length){newContent = definedBehaviourXmlContent[newIndex];}
+			if(newContent != null && newContent != undefined && newContent.length > 0){
+				injectXmlToWorkspace(newContent);
+			}
 
-			//redraw tabs
 			redrawTabs();
+
+			currentTab = newTab;
+			currentIndex = newIndex;
+			selectCurrentTab();
 		}
 		
+	}
+
+	function selectCurrentTab(){
+		if(currentTab == 'Scene'){document.getElementById('sceneTab').innerHTML = '<b>Escena</b>';}
+		if(currentTab == 'FreeArea'){document.getElementById('freeAreaTab').innerHTML = '<b>Area Libre</b>';}
+		if(currentTab == 'Object'){document.getElementById('objectButton_'+currentIndex).innerHTML = '<b>'+definedObjectNames[currentIndex]+'</b>';}
+		if(currentTab == 'Behaviour'){document.getElementById('behaviourButton_'+currentIndex).innerHTML = '<b>'+definedBehaviourNames[currentIndex]+'</b>';}
 	}
 
 	function redrawTabs(){
 		var innerHtml = '';
 		innerHtml += '<tr>';
-		
-		innerHtml += '<td><button tabIndex="0" class="tabButton" onclick="ontabClick(0)">';
-		if(tabIndex == 0){
-			innerHtml += '<b>Escena</b>';
-		}else{
-			innerHtml += 'Escena';
-		}
-		innerHtml += '</button></td>';
-
-		innerHtml += '<td><button tabIndex="1" class="tabButton" onclick="ontabClick(1)">';
-		if(tabIndex == 1){
-			innerHtml += '<b>Area Libre</b>';
-		}else{
-			innerHtml += 'Area Libre';
-		}
-		innerHtml += '</button></td>';
-
-		for(var i = 0;i < globals.length; i++){
-			innerHtml += '<td><button tabIndex="'+(i+2)+'" class="tabButton" onclick="ontabClick('+(i+2)+')">';
-			if(tabIndex == (i+2)){
-				innerHtml += '<b>'+globals[i]+'</b>';
-			}else{
-				innerHtml += ''+globals[i];
-			}
-			innerHtml += '<button onclick="removeGlobalWithIndex('+(i+2)+')">x</button>';
-			innerHtml += '</button></td>';
-		}
-
-		innerHtml += '<td><button onclick="showModal()" >+</button></td></tr>';
+		innerHtml += '<tr><td><button id="sceneTab" class="tabButton" onclick="ontabClick(\'Scene\',-1)" >Escena</button></td><td><button id="freeAreaTab" class="tabButton" onclick="ontabClick(\'FreeArea\',-1)">Area Libre</button></td></tr>';
 		innerHtml += '</tr>';
 
+
+		innerHtml += '<tr>';
+		innerHtml += '<td><button onclick="showNewTabObjectModal()">+</button></td><td>Objetos</td>';
+		for(var i = 0;i < definedObjectNames.length; i++){
+			innerHtml += '<td><button id="objectButton_'+i+'" onclick="ontabClick(\'Object\','+i+')">'+definedObjectNames[i]+'</button><button onclick="removeObjectWithIndex('+i+')" >x</button></td>';
+		}
+		innerHtml += '</tr>';
+
+
+		innerHtml += '<tr>';
+		innerHtml += '<tr><td><button onclick="showNewTabBehaviourModal()">+</button></td><td>Comportamientos</td></tr>';
+		for(var i = 0;i < definedBehaviourNames.length; i++){
+			innerHtml += '<td><button id="behaviourButton_'+i+'" onclick="ontabClick(\'Behaviour\','+i+')">'+definedBehaviourNames[i]+'</button><button onclick="removeBehaviourWithIndex('+i+')" >x</button></td>';
+		}
+		innerHtml += '</tr>';
 
 		$('#tabsTable')[0].innerHTML = innerHtml;
 	}
 
-	function addGlobalNamed(aGlobalName,contentLIst){
-		globals.push(aGlobalName);
-		tabsXmlContent.push({name:aGlobalName , content:contentLIst});
-		ontabClick(1 + globals.length);
+
+	function removeObjectWithIndex(anIndex){
+		definedObjectXmlContent.splice(anIndex, 1);
+		definedObjectNames.splice(anIndex, 1);
+		if(definedObjectXmlContent.length > 0){
+			if(anIndex == 0){
+				ontabClick('Object',0);
+			}else{
+				ontabClick('Object',anIndex-1);
+			}
+		}else{
+			ontabClick('FreeArea',-1);
+		}
 	}
 
-	function removeGlobalWithIndex(anIndex){
-		globals.splice(anIndex-2, 1);
-		tabsXmlContent.splice(anIndex, 1);
-		ontabClick(anIndex-1);
+	function removeBehaviourWithIndex(anIndex){
+		definedBehaviourXmlContent.splice(anIndex, 1);
+		definedBehaviourNames.splice(anIndex, 1);
+		if(definedBehaviourXmlContent.length > 0){
+			if(anIndex == 0){
+				ontabClick('Behaviour',0);
+			}else{
+				ontabClick('Behaviour',anIndex-1);
+			}
+		}else{
+			ontabClick('FreeArea',-1);
+		}
 	}
 
 	function closeModal(){
 		document.getElementById("box").style.display = "none";
 	}
 
-	function showModal(){
+	function showNewTabObjectModal(){
+		document.getElementById("modalTitle").innerHTML = "Nuevo Objeto";
 		document.getElementById("box").style.display = "block";	
+		document.getElementById("createNewTabObjectButton").style.display = "block";
+		document.getElementById("createNewTabBehaviourButton").style.display = "none";
 	}
 
-	function createNewGlobal(CREATION_MODE){
-		var proposedGlobalName = $('#newGlobalName').val();
-		if(proposedGlobalName != undefined && proposedGlobalName != null && proposedGlobalName != ''){
-			if(globals.includes(proposedGlobalName)){
-				alert('La Variable global ya existe!');
+	function showNewTabBehaviourModal(){
+		document.getElementById("modalTitle").innerHTML = "Nuevo Comportamiento";
+		document.getElementById("box").style.display = "block";	
+		document.getElementById("createNewTabObjectButton").style.display = "none";
+		document.getElementById("createNewTabBehaviourButton").style.display = "block";
+	}
+
+	function createNewTabObject(SAVE_MODE){
+		var proposedName = $('#newGlobalName').val();
+		if(proposedName != undefined && proposedName != null && proposedName != ''){
+			if(definedObjectNames.includes(proposedName) ||  definedBehaviourNames.includes(proposedName)){
+				alert('Este nombre ya esta siendo utilizado');
 			}else{
 				var content_tmp = [];
-				if(CREATION_MODE == 'SAVE_WORKSPACE'){
+				if(SAVE_MODE == 'SAVE_WORKSPACE'){//SAVE CURRENT WORKSPACE AS TAB
 					var xmlSerializer = new XMLSerializer();
 					var contentList = getWorkspaceXmlContentAsList();
-					tabsXmlContent[tabIndex].content = [];
 					for(var i = 0; i < contentList.length; i++){
 						content_tmp.push(xmlSerializer.serializeToString(contentList[i]));
 					}
 				}			
-				addGlobalNamed(proposedGlobalName,content_tmp);
+				definedObjectNames.push(proposedName);
+				definedObjectXmlContent.push(content_tmp);
+
+				workspace.clear();
+				redrawTabs();
+
+				currentTab = 'Object';
+				currentIndex = definedObjectXmlContent.length - 1;
+				selectCurrentTab();
+			}
+			$('#newGlobalName').val('');
+			document.getElementById("box").style.display = "none";
+		}
+	}
+
+	function createNewTabBehaviour(SAVE_MODE){
+		var proposedName = $('#newGlobalName').val();
+		if(proposedName != undefined && proposedName != null && proposedName != ''){
+			if(definedObjectNames.includes(proposedName) ||  definedBehaviourNames.includes(proposedName)){
+				alert('Este nombre ya esta siendo utilizado');
+			}else{
+				var content_tmp = [];
+				if(SAVE_MODE == 'SAVE_WORKSPACE'){//SAVE CURRENT WORKSPACE AS TAB
+					var xmlSerializer = new XMLSerializer();
+					var contentList = getWorkspaceXmlContentAsList();
+					for(var i = 0; i < contentList.length; i++){
+						content_tmp.push(xmlSerializer.serializeToString(contentList[i]));
+					}
+				}			
+				definedBehaviourNames.push(proposedName);
+				definedBehaviourXmlContent.push(content_tmp);
+
+				workspace.clear();
+				redrawTabs();
+
+				currentTab = 'Behaviour';
+				currentIndex = definedBehaviourXmlContent.length - 1;
+				selectCurrentTab();
 			}
 			$('#newGlobalName').val('');
 			document.getElementById("box").style.display = "none";
