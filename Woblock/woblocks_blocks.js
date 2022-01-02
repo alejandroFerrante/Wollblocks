@@ -9,7 +9,7 @@
 Blockly.Blocks['action_start'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField(new Blockly.FieldImage("play.png", 30, 30, "|>"));
+        .appendField(new Blockly.FieldImage("icons/play.png", 20, 20, "|>"));
     this.setInputsInline(false);
     this.setNextStatement(true, null);
     this.setTooltip('');
@@ -46,11 +46,14 @@ Blockly.JavaScript['action_start'] = function(block) { return ''; };
 //This block is used to create an object.It takes a text block for the nme and properties definition statements.
 Blockly.Blocks['objetc_create'] = {
   init: function() {
+    //this.appendDummyInput()
+        //.appendField("OBJECT");
+    this.setInputsInline(true);
     this.appendDummyInput()
-        .appendField("OBJECT");
+        .appendField(new Blockly.FieldImage("icons/object.png", 45, 45, "*"));
     this.appendValueInput("objName")
         .setCheck("String")
-        .appendField("Named");
+        //.appendField("Named");
     this.appendStatementInput('properties')
     .appendField('')
     .setCheck("objetc_property");///////////
@@ -147,14 +150,16 @@ Blockly.JavaScript['objetc_property'] = function(aBlock) {
 //takes a string block for the method name and a list of parameter names (string list block) and instructions to create a method
 Blockly.Blocks['method_create'] = {
   init: function() {
+    this.setInputsInline(true);
     this.appendValueInput("name")
+    	.appendField(new Blockly.FieldImage("icons/action.png", 45, 45, "*"))
         .setCheck("String")
-        .appendField("METHOD");
+        //.appendField("METHOD");
     this.appendValueInput("params")
         .setCheck("Array")
-        .appendField("with params:");
+        .appendField("PARAMS:");
     this.appendDummyInput()
-        .appendField("AND INSTRUCTIONS");
+        .appendField("INSTRUCTIONS");
     this.appendStatementInput('instructions')
     .appendField('');
     this.setInputsInline(false);
