@@ -36,7 +36,13 @@ Blockly.Blocks['action_start'] = {
   }
 };
 
-Blockly.JavaScript['action_start'] = function(block) { return ''; };
+Blockly.JavaScript['action_start'] = function(block) { 
+	if(block.nextConnection.targetBlock() != null){
+		return Blockly.JavaScript[block.nextConnection.targetBlock().type](block.nextConnection.targetBlock());
+	}else{
+		return '';
+	} 
+};
 //=============================================================================================================================================
 //=============================================================================================================================================
 //=============================================================================================================================================
@@ -86,6 +92,33 @@ Blockly.Blocks['objetc_create'] = {
     code += ' };\n';
     
     return code;
+  },
+  getMetaInfo:function(self){
+  	var value_objname = Blockly.JavaScript.valueToCode(self, 'objName', Blockly.JavaScript.ORDER_ATOMIC);
+
+  	if(value_objname == undefined || value_objname == ''){
+      value_objname = null; 
+    }
+  	
+  	return {obj:value_objname.replaceAll('\'',''),method:null};	
+  },getMessagesOf: function(block,existingMethods){
+  		var value_properties = Blockly.JavaScript.statementToCode(block, 'properties');
+  		var result = [];
+  		var lst = value_properties.split(',');
+  		
+  		for(var i = 0; i < lst.length;i++){
+		    if(lst[i].includes(':')){
+				if( lst[i].split(':')[1].replaceAll(' ','').startsWith('function(') ){
+					result.push(lst[i].split(':')[0].replaceAll(' ',''));
+				}
+				if( existingMethods.includes(lst[i].split(':')[1].replaceAll(' ',''))){
+					result.push(lst[i].split(':')[0].replaceAll(' ',''));
+				}        
+		    }
+		}
+
+		return result;
+
   }
 };
 
@@ -125,7 +158,7 @@ Blockly.Blocks['objetc_property'] = {
 
     code += ':';
     
-    if(value_name != undefined && value_name != null && value_name != ''){
+    if(value_value != undefined && value_value != null && value_value != ''){
       code += value_value.replaceAll("'","")+' ';
     }else{
       code += ' __objetc_property___value__ '
@@ -194,15 +227,32 @@ Blockly.Blocks['method_create'] = {
     code += '};\n';
 
     return code;  
-  }};
+  },
+  getMetaInfo:function(self){
+  	var value_name = Blockly.JavaScript.valueToCode(self, 'name', Blockly.JavaScript.ORDER_ATOMIC);
+  	var value_params = Blockly.JavaScript.valueToCode(self, 'params', Blockly.JavaScript.ORDER_ATOMIC);
 
-  Blockly.JavaScript['method_create'] = function(block) {
-    var value_name = Blockly.JavaScript.valueToCode(block, 'name', Blockly.JavaScript.ORDER_ATOMIC);
-    var value_params = Blockly.JavaScript.valueToCode(block, 'params', Blockly.JavaScript.ORDER_ATOMIC);
-    var value_instructions = Blockly.JavaScript.statementToCode(block, 'instructions');
-    var code = Blockly.Blocks['method_create'].doActionJS(block,{'name':value_name , 'params':value_params , 'instructions':value_instructions });
-    return code;
-  };
+  	if(value_name == undefined || value_name == ''){
+  		value_name = null;
+  	}
+
+  	var paramsAmount = null;
+  	if(value_params != undefined && value_params != null && value_params != ''){
+      paramsAmount = value_params.split(',').length; 
+    }
+  	
+  	return {obj:null,method:{name:value_name,paramsAmount:paramsAmount}};
+  }
+
+};
+
+Blockly.JavaScript['method_create'] = function(block) {
+	var value_name = Blockly.JavaScript.valueToCode(block, 'name', Blockly.JavaScript.ORDER_ATOMIC);
+	var value_params = Blockly.JavaScript.valueToCode(block, 'params', Blockly.JavaScript.ORDER_ATOMIC);
+	var value_instructions = Blockly.JavaScript.statementToCode(block, 'instructions');
+	var code = Blockly.Blocks['method_create'].doActionJS(block,{'name':value_name , 'params':value_params , 'instructions':value_instructions });
+	return code;
+};
 
 
 //METHOD INSTRUCTION
@@ -235,3 +285,157 @@ Blockly.Blocks['method_instruction'] = {
     var code = Blockly.Blocks['method_instruction'].doActionJS(block,{'instruction':value_instruction});
     return code;
   };
+
+//=============================================================================================================================================
+//=============================================================================================================================================
+//=============================================================================================================================================
+//=============================================================================================================================================
+
+Blockly.Blocks['executor'] = {
+  init: function() {
+    this.appendValueInput("executor")
+        .setCheck(null)
+        .appendField("");
+    this.appendDummyInput()
+        .appendField(new Blockly.FieldImage("icons/Arrow.png", 25, 25, ""));
+    this.appendValueInput("method")
+        .setCheck(null)
+        .appendField("");
+    this.appendStatementInput('params')
+    .appendField('');    
+    this.setTooltip('');
+    this.setHelpUrl('http://www.example.com/');
+  },doActionJS:function(self, paramsMap,metaInfo){
+  	  var value_executor = paramsMap['executor'];
+  	  var value_method = paramsMap['method'];
+	  var value_params = paramsMap['params'];
+	  var messages;
+	  //check if obj exists?
+	  //check if has method?
+	  //check if params coincide?
+	  if(value_executor == undefined || value_executor == null || value_executor == ''){
+	  	//empty executor
+	  	alert('No se ha provisto un ejecutor');
+	  	sceneErrorLog = 'No se ha provisto un ejecutor';
+	  	return false;
+	  }
+	  if(value_method == undefined || value_method == null || value_method == ''){
+	  	//empty method
+	  	if(sceneAlertErrors){alert('No se ha provisto un mensaje a enviar');}
+	  	sceneErrorLog = 'No se ha provisto un mensaje a enviar';
+	  	return false;
+	  }
+	  if(value_params == undefined || value_params == null){
+	  	//empty params
+	  	if(sceneAlertErrors){alert('No se han provisto parametros de ejecucion');}
+	  	sceneErrorLog = 'No se han provisto parametros de ejecucion';
+	  	return false;
+	  }
+	  if(!metaInfo.objects.includes(value_executor)){
+	  	//inexisting executor
+	  	if(sceneAlertErrors){alert('El ejecutor \''+value_executor+'\' es inexistente');}
+	  	sceneErrorLog = 'El ejecutor \''+value_executor+'\' es inexistente';
+	  	return false;
+	  }
+
+	  messages = getMessagesOf(value_executor); 
+	  if(! messages.includes(value_method) ){
+	  	//inexisting method
+	  	if(sceneAlertErrors){alert('El ejecutor \''+value_executor+'\' no sabe responder el mensaje \''+value_method+'\'');}
+	  	sceneErrorLog = 'El ejecutor \''+value_executor+'\' no sabe responder el mensaje \''+value_method+'\'';
+	  	return false;
+	  }
+
+	  //if((value_params == '' && metaInfo.methods[value_method] != 0) || (value_params.split(',').length !=  metaInfo.methods[value_method]) ){
+	  //	//wrong amount of params
+	  //	if(sceneAlertErrors){alert('Los parametros provistos para el mensaje \''+value_method+'\' son incorrectos');}
+	  //	sceneErrorLog = 'Los parametros provistos para el mensaje \''+value_method+'\' son incorrectos';
+	  //	return false;	
+	  //}
+
+	  return value_executor+'.'+value_method+'('+value_params+')';
+  }
+};
+
+Blockly.JavaScript['executor'] = function(block,metaInfo) {
+	var value_executor = Blockly.JavaScript.valueToCode(block, 'executor', Blockly.JavaScript.ORDER_ATOMIC).replaceAll('\'','');
+	var value_method = Blockly.JavaScript.valueToCode(block, 'method', Blockly.JavaScript.ORDER_ATOMIC).replaceAll('\'','');
+	var value_params = Blockly.JavaScript.statementToCode(block, 'params');
+	return Blockly.Blocks['executor'].doActionJS(block,{'executor':value_executor,'method':value_method,'params':value_params},metaInfo);
+}
+
+
+Blockly.Blocks['executor_param'] = {
+  init: function() {
+    this.appendValueInput("param")
+        .setCheck("String");
+    this.setInputsInline(true);
+    this.setNextStatement(true, null);
+    this.setPreviousStatement(true, null);
+    this.setTooltip('');
+  },doActionJS:function(self, paramsMap){
+  	var value_instruction = paramsMap['param'];
+    var code = '';
+	//if(self.getPreviousBlock().type != 'executor_param'){
+	//	code += '[';
+	//}
+     code += value_instruction.replaceAll('\'','');
+	if(self.getNextBlock() == undefined || self.getNextBlock() == null || self.getNextBlock().type != 'executor_param'){
+		//code += ']';
+	}else{
+		code += ',';
+	}
+    return code;
+  }
+ };
+
+  Blockly.JavaScript['executor_param'] = function(block) {
+    var value_instruction = Blockly.JavaScript.valueToCode(block, 'param', Blockly.JavaScript.ORDER_ATOMIC);
+    return Blockly.Blocks['executor_param'].doActionJS(block,{'param':value_instruction});
+  };
+
+
+function getMessagesOf(aBlockName){
+	var objs = getAllParentlessObjects();
+	var index = 0;
+	var found = false;
+	var result = null;
+	var existingMethods = [];
+		
+	while(index < objs.length){
+		if(objs[index].type == 'action_start' && objs[index].getNextBlock() != null && objs[index].getNextBlock().type == 'objetc_create'){
+			if( Blockly.JavaScript.valueToCode(objs[index].getNextBlock(), 'objName', Blockly.JavaScript.ORDER_ATOMIC).replaceAll('\'','') == aBlockName){
+				found = true;
+				break;
+			}
+		}
+		if(objs[index].type == aBlockName && definedObjectNames.includes(aBlockName)){
+			found = true;
+			break;
+		}
+		index++;
+	}
+
+	if(found){
+		//collect exiting methods
+		for(var j = 0; j < index; j++){
+			if(objs[j].type == 'action_start' && objs[j].getNextBlock() != null && objs[j].getNextBlock().type == 'method_create'){
+				existingMethods.push( Blockly.JavaScript.valueToCode(objs[j].getNextBlock(), 'name', Blockly.JavaScript.ORDER_ATOMIC).replaceAll('\'','') );
+			}else if(definedBehaviourNames.includes(objs[j].type)){
+				existingMethods.push(objs[j].type);
+			}
+		}
+
+		if(objs[index].type == 'action_start'){
+			result = Blockly.Blocks['objetc_create'].getMessagesOf(objs[index].getNextBlock(),existingMethods);
+		}else if(definedObjectNames.includes(aBlockName)){
+			var decomposed = objs[index].decompose(Blockly.getMainWorkspace());
+			result = Blockly.Blocks['objetc_create'].getMessagesOf(decomposed.getNextBlock(),existingMethods);
+			decomposed.dispose();
+		}
+
+	}
+
+	
+	return result;
+}
