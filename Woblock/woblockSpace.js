@@ -366,7 +366,80 @@ function doPlayScene(alertErrors){
 		///
 	}else{
 		for(var i = 0; i < sceneSteps.length; i++){
-			eval(sceneSteps[i]);
+			try{
+				eval(sceneSteps[i]);
+			}catch(e){
+				alert(e);
+			}
 		}
 	} 
+}
+
+function getSceneCodeAsString(){
+	result = [];
+
+	var objs = getAllParentlessObjects();
+	var partialMetaInfo;
+	var metaInfo;
+	var strsToEval = [];
+	var res;
+	sceneErrorsFound = false;
+	sceneErrorLog = '';
+	sceneSteps = [];
+
+	for(var i = 0; i < objs.length && !sceneErrorsFound; i++){
+		if(Blockly.JavaScript[ objs[i].type ] != undefined){
+			
+			if(objs[i].type == 'executor'){
+				//colllect meta info
+				partialMetaInfo = {objects:[],methods:{}};
+				for(var j = 0; j < i; j++){
+					if(objs[j].type == 'action_start'){
+						
+						if(objs[j].getNextBlock() != null && objs[j].getNextBlock().type == 'method_create'){
+							metaInfo = Blockly.Blocks['method_create'].getMetaInfo(objs[j].getNextBlock());
+							if(metaInfo.method.name != null && metaInfo.method.paramsAmount != null){
+								partialMetaInfo.methods[metaInfo.method.name] = metaInfo.method.paramsAmount;
+							}
+						}
+
+						if(objs[j].getNextBlock() != null && objs[j].getNextBlock().type == 'objetc_create'){ 
+							metaInfo = Blockly.Blocks['objetc_create'].getMetaInfo(objs[j].getNextBlock());
+							if(metaInfo.obj != null){
+								partialMetaInfo.objects.push(metaInfo.obj);
+							}
+						}
+					}else if(definedObjectNames.includes(objs[j].type)){
+						metaInfo = Blockly.Blocks[objs[j].type].getMetaInfo(objs[j]);
+						if(metaInfo.obj != null){
+							partialMetaInfo.objects.push(metaInfo.obj);
+						}
+
+					}else if(definedBehaviourNames.includes(objs[j].type)){
+						metaInfo = Blockly.Blocks[objs[j].type].getMetaInfo(objs[j]);
+						if(metaInfo.method.name != null && metaInfo.method.paramsAmount != null){
+							partialMetaInfo.methods[metaInfo.method.name] = metaInfo.method.paramsAmount;
+						}
+					}
+				}
+
+				res = Blockly.JavaScript['executor'](objs[i],partialMetaInfo);
+				
+				//DETECT ERROR
+				if(typeof res === 'string'){
+					result.push( res.replaceAll('\n','') );
+				}else{
+					result.push('<ERROR FOUND>');
+				}
+
+			}else{
+				res = Blockly.JavaScript[ objs[i].type ](objs[i]);
+				if(typeof res === 'string'){
+					//console.log(res);
+					result.push(res.replaceAll('\n',''));
+				}
+			}
+		}
+	}
+	return result;
 }

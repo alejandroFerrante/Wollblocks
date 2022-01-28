@@ -293,11 +293,12 @@ Blockly.Blocks['method_instruction'] = {
 
 Blockly.Blocks['executor'] = {
   init: function() {
+  	this.appendDummyInput().appendField(new Blockly.FieldImage("icons/Pointer.png", 30, 30, ""));
     this.appendValueInput("executor")
         .setCheck(null)
         .appendField("");
     this.appendDummyInput()
-        .appendField(new Blockly.FieldImage("icons/Arrow.png", 25, 25, ""));
+        .appendField(new Blockly.FieldImage("icons/Arrow.png", 30, 30, ""));
     this.appendValueInput("method")
         .setCheck(null)
         .appendField("");
@@ -305,6 +306,8 @@ Blockly.Blocks['executor'] = {
     .appendField('');    
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
+    //this.setColour('#d69833');
+    this.setColour('#751072');
   },doActionJS:function(self, paramsMap,metaInfo){
   	  var value_executor = paramsMap['executor'];
   	  var value_method = paramsMap['method'];
@@ -373,6 +376,8 @@ Blockly.Blocks['executor_param'] = {
     this.setNextStatement(true, null);
     this.setPreviousStatement(true, null);
     this.setTooltip('');
+    this.setColour('#cf9c11');
+    //this.setColour('#7d1e7b');
   },doActionJS:function(self, paramsMap){
   	var value_instruction = paramsMap['param'];
     var code = '';
