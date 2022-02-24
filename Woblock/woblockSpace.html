@@ -72,6 +72,7 @@
 		font-family:codeFont;
 		font-size:15px;	
 	}
+
   </style>
 
 </head>
@@ -99,15 +100,20 @@
   				</div>
 
   				<div id="mappingSection" style="padding-bottom:500px;height: 50px; width: 1000px;display:none">
-  					<h3 style="text-align: center;">Definiciones</h3>
-  					<table><tr>
+  					<h3 style="text-align: center" class="customFont">Definiciones</h3>
+  					<table class="customFont"><tr>
+  						<td>Icono</td>
   						<td><select id="icons" onchange="onIconSelected()">
 						  
 						</select></td>
 						<td><img id="selectedIcon" style="width:25px;height:25px;" ></td>
-						<td><input id="mapping_color" type="color"/></td>
-						<td id="mappingInfoSection"></td>
-  					</tr></table>
+						<td style="padding-left:50px;" >Color de Fondo<input id="mapping_color_back" type="color"/></td>
+  					</tr>
+  					</table>
+  					<table class="customFont">
+						<tr><td id="mapping_show_names_section" style="padding-left:50px;display:none;" >Mostrar nombre de atributos<input id="mapping_show_names" type="checkbox"/></td></tr>
+  						<tr><td id="mappingInfoSection" style="padding-left:50px;"></td></tr>
+  					</table>
   				</div>
   			</td>
   		</tr>
@@ -259,18 +265,52 @@
 
 <script>
 
+	var localSwitch = true;
+
 	window.onload = function() {
   		spaceInit();
 	};
+
 
 	$( "#code_generate" ).click(function() {
 		$('#code_container')[0].innerHTML = /*getJSCodeForCurrentWorkspace().replaceAll('\n','<br/>');*/ getSceneCodeAsString().join('<br/>');
 	});
 
+	function onWorkspaceChange( event){
+		if(localSwitch && (event.type == Blockly.Events.BLOCK_CHANGE  || event.type == Blockly.Events.BLOCK_CREATE)){
+			
+			var objs = getAllParentlessObjects();
+			for(var i = 0; i < objs.length; i++){
+				if(objs[i].type == 'action_start' && objs[i].getNextBlock() != undefined && objs[i].getNextBlock().type == 'objetc_create' ){
+					objs[i].getNextBlock().setWarningText( 'MENSAJES\n'+(getAllMessagesOf(objs[i].getNextBlock()) ).join('\n')  );
+				}else if( definedObjectNames.includes(objs[i].type)){
+					localSwitch = false;
+					var decomposed = objs[i].getDecompose(workspace); 
+					decomposed.moveTo(objs[i].getRelativeToSurfaceXY());
+					if(decomposed.type == 'action_start' && decomposed.getNextBlock() != undefined && decomposed.getNextBlock().type == 'objetc_create'){
+						objs[i].setWarningText( 'MENSAJES\n'+(getAllMessagesOf(decomposed.getNextBlock()) ).join('\n')  );
+					}
+					decomposed.dispose();
+					localSwitch = true;
+				}
+			}
+		//	$('#code_container')[0].innerHTML = getSceneCodeAsString().join('<br/>');
+
+		}
+
+		if(currentTab == 'Object' || currentTab == 'Behaviour'){
+			fillObjectOrBehaviourMappingSection()	
+		}
+
+	}
+	
 	function ontabClick(newTab,newIndex){
 		
 		if(newTab == 'Scene' || newTab == 'FreeArea' || ( (newTab == 'Object' || newTab == 'Behaviour') && ( newIndex != currentIndex || newTab != currentTab) ) ){
 			
+			//close toolbox
+			workspace.getToolbox().autoHide();
+
 			//save current content
 			saveCurrentContent();
 
@@ -303,6 +343,7 @@
 
 			redrawTabs();
 
+			//UI Setting
 			currentTab = newTab;
 			currentIndex = newIndex;
 			selectCurrentTab();
@@ -389,6 +430,7 @@
 	}
 
 	function showNewTabObjectModal(){
+		workspace.getToolbox().autoHide();
 		document.getElementById("modalTitle").innerHTML = "Nuevo Objeto";
 		document.getElementById("box").style.display = "block";	
 		document.getElementById("createNewTabObjectButton").style.display = "block";
@@ -396,6 +438,7 @@
 	}
 
 	function showNewTabBehaviourModal(){
+		workspace.getToolbox().autoHide();
 		document.getElementById("modalTitle").innerHTML = "Nuevo Comportamiento";
 		document.getElementById("box").style.display = "block";	
 		document.getElementById("createNewTabObjectButton").style.display = "none";
@@ -403,7 +446,9 @@
 	}
 
 	function createNewTabObject(SAVE_MODE){
-		var proposedName = $('#newGlobalName').val();
+		var proposedName = $('#newGlobalName').val().replaceAll(/[^A-Za-z0-9]/g, '');
+		proposedName = removeInitialNumbers(proposedName);
+
 		if(proposedName != undefined && proposedName != null && proposedName != ''){
 			if(definedObjectNames.includes(proposedName) ||  definedBehaviourNames.includes(proposedName)){
 				alert('Este nombre ya esta siendo utilizado');
@@ -445,7 +490,8 @@
 	}
 
 	function createNewTabBehaviour(SAVE_MODE){
-		var proposedName = $('#newGlobalName').val();
+		var proposedName = $('#newGlobalName').val().replaceAll(/[^A-Za-z0-9]/g, '');
+		proposedName = removeInitialNumbers(proposedName);
 		if(proposedName != undefined && proposedName != null && proposedName != ''){
 			if(definedObjectNames.includes(proposedName) ||  definedBehaviourNames.includes(proposedName)){
 				alert('Este nombre ya esta siendo utilizado');
@@ -507,7 +553,6 @@
 						xmlContentList[currentIndex].push(xmlSerializer.serializeToString(contentList[i]));
 					}
 					var maxIterations = 1000;
-					var replacementType;
 					var replacementValue;
 					var replacementParam;
 					var i = 0;
@@ -516,14 +561,12 @@
 						definedObjectsMappingInfo[currentIndex].icon = 'icons/representations/'+document.getElementById('icons').value; 
 						definedObjectsMappingInfo[currentIndex].replacements = {};
 
-						replacementType = document.getElementById('mappingInputType_'+i); 
 						replacementValue = document.getElementById('mappingInput_'+i);
 						replacementParam = document.getElementById('replacementName__'+i);
 						while(maxIterations > 0 && replacementValue != undefined){
-							definedObjectsMappingInfo[currentIndex].replacements[replacementParam.innerHTML] = {type:replacementType.value , val:replacementValue.value};
+							definedObjectsMappingInfo[currentIndex].replacements[replacementParam.innerHTML] = {val:replacementValue.value};
 							maxIterations--;
 							i++;
-							replacementType = document.getElementById('mappingInputType_'+i); 
 							replacementValue = document.getElementById('mappingInput_'+i);
 							replacementParam = document.getElementById('replacementName__'+i);
 						}
@@ -533,14 +576,12 @@
 						definedBehavioursMappingInfo[currentIndex].icon = 'icons/representations/'+document.getElementById('icons').value;
 						definedBehavioursMappingInfo[currentIndex].replacements = {};
 						
-						replacementType = document.getElementById('mappingInputType_'+i); 
 						replacementValue = document.getElementById('mappingInput_'+i);
 						replacementParam = document.getElementById('replacementName__'+i);
 						while(maxIterations > 0 && replacementValue != undefined){
-							definedBehavioursMappingInfo[currentIndex].replacements[replacementParam.innerHTML] = {type:replacementType.value , val:replacementValue.value};
+							definedBehavioursMappingInfo[currentIndex].replacements[replacementParam.innerHTML] = {val:replacementValue.value};
 							maxIterations--;
 							i++;
-							replacementType = document.getElementById('mappingInputType_'+i); 
 							replacementValue = document.getElementById('mappingInput_'+i);
 							replacementParam = document.getElementById('replacementName__'+i);
 						}
@@ -600,23 +641,24 @@
 
 			//fill mapping info ui
 			var strHtml = '';
+			if(freeParams.length > 0){document.getElementById('mapping_show_names_section').style.display = 'block';}
 			for(var i = 0; i < freeParams.length; i++){
 				if(mappingInfo.replacements[freeParams[i]] != undefined){
 					strHtml += '<div>';
 					strHtml += '		<label id="replacementName__'+i+'">'+freeParams[i]+'</label>';
-					strHtml += '		<select id="mappingInputType_'+i+'" value="'+mappingInfo.replacements[freeParams[i]].type+'" >';
-					strHtml += '			<option value="value">valor</option>';
-					strHtml += '			<option value="param">parametro</option>';
-					strHtml += '		</select>';
+					//strHtml += '		<select id="mappingInputType_'+i+'" value="'+mappingInfo.replacements[freeParams[i]].type+'" >';
+					//strHtml += '			<option value="value">valor</option>';
+					//strHtml += '			<option value="param">parametro</option>';
+					//strHtml += '		</select>';
 					strHtml += '		<input id="mappingInput_'+i+'" value="'+mappingInfo.replacements[freeParams[i]].val+'" >';
 					strHtml += '</div>';
 				}else{
 					strHtml += '<div>';
 					strHtml += '		<label id="replacementName__'+i+'">'+freeParams[i]+'</label>';
-					strHtml += '		<select id="mappingInputType_'+i+'" value="value" >';
-					strHtml += '			<option value="value">valor</option>';
-					strHtml += '			<option value="param">parametro</option>';
-					strHtml += '		</select>';
+					//strHtml += '		<select id="mappingInputType_'+i+'" value="value" >';
+					//strHtml += '			<option value="value">valor</option>';
+					//strHtml += '			<option value="param">parametro</option>';
+					//strHtml += '		</select>';
 					strHtml += '		<input id="mappingInput_'+i+'" value="" >';
 					strHtml += '</div>';
 				}
@@ -631,6 +673,7 @@
 			if(currentTab == 'Behaviour'){
 				definedBehavioursMappingInfo[currentIndex].replacements = {};
 			}
+			document.getElementById('mappingInfoSection').innerHTML = '';
 		}
 	}
 
@@ -698,7 +741,10 @@
 
 	function getMainToolboxXmlString(){
 		var xmlStr = '';
-		xmlStr += '		    <category name="ATOMICS" toolboxitemid="atomics">';
+		xmlStr += '		    <category name="ATOMICOS" toolboxitemid="atomics">';
+
+		xmlStr += '			<block type="example_dropdown" ></block>';
+
 		xmlStr += '		      <block type="logic_boolean" >';
 		xmlStr += '		        <field name="BOOL">TRUE</field>';
 		xmlStr += '		      </block>';
@@ -720,7 +766,7 @@
 		xmlStr += '		        </value>';
 		xmlStr += '		      </block>';
 		xmlStr += '		    </category>';
-		xmlStr += '		    <category name="CREATION">';
+		xmlStr += '		    <category name="CREACION">';
 		xmlStr += '			  <block type="action_start" >';
 		xmlStr += '			  </block>';
 		xmlStr += '			  <block type="action_start">';
@@ -793,7 +839,7 @@
 		xmlStr += '		        </value>';
 		xmlStr += '		      </block>';
 		xmlStr += '		      </category>';
-		xmlStr += '		    <category name="EXECUTION">';
+		xmlStr += '		    <category name="EJECUCION">';
 		xmlStr += '		      <block type="executor" >';		
 		xmlStr += '		      	<value name="executor">';
 		xmlStr += '		        	<block type="text"><field name="TEXT">anObj</field></block>';
@@ -811,7 +857,7 @@
 		xmlStr += '		      </category>';
 
 		if(definedObjectNames.length > 0){
-			xmlStr +='		    <category name="OBJECTS" toolboxitemid="custom" >\n';
+			xmlStr +='		    <category name="OBJETOS" toolboxitemid="custom" >\n';
 			for(var i = 0; i < definedObjectNames.length; i++ ){
 				xmlStr +='			<block type="'+definedObjectNames[i]+'"></block>';
 			}
@@ -819,7 +865,7 @@
 		}
 
 		if(definedBehaviourNames.length > 0){
-			xmlStr +='		    <category name="BEHAVIOURS" toolboxitemid="custom" >\n';
+			xmlStr +='		    <category name="COMPORTAMIENTOS" toolboxitemid="custom" >\n';
 			for(var i = 0; i < definedBehaviourNames.length; i++ ){
 				xmlStr +='			<block type="'+definedBehaviourNames[i]+'"></block>';
 			}
@@ -830,7 +876,7 @@
 
 	function getObjectToolboxXmlString(){
 		var xmlStr = '';
-		xmlStr += '		    <category name="ATOMICS" toolboxitemid="atomics">\n';
+		xmlStr += '		    <category name="ATOMICOS" toolboxitemid="atomics">\n';
 		xmlStr += '		      <block type="logic_boolean" >\n';
 		xmlStr += '		        <field name="BOOL">TRUE</field>\n';
 		xmlStr += '		      </block>\n';
@@ -852,7 +898,7 @@
 		xmlStr += '		        </value>\n';
 		xmlStr += '		      </block>\n';
 		xmlStr += '		    </category>\n';
-		xmlStr += '		    <category name="CREATION">\n';
+		xmlStr += '		    <category name="CREACION">\n';
 		xmlStr += '			  <block type="action_start" >\n';
 		xmlStr += '			  </block>\n';
 		xmlStr +='		      <block type="objetc_property">\n';
@@ -902,7 +948,7 @@
 		xmlStr +='		      </category>\n';
 
 		if(definedBehaviourNames.length > 0){
-			xmlStr +='		    <category name="BEHAVIOURS" toolboxitemid="custom" >\n';
+			xmlStr +='		    <category name="COMPORTAMIENTOS" toolboxitemid="custom" >\n';
 			//FETCH BEHAVIOUR
 			xmlStr +='		    </category>\n';
 		}
@@ -911,7 +957,7 @@
 
 	function getBehaviourToolboxXmlString(){
 		var xmlStr = '';
-		xmlStr += '		    <category name="ATOMICS" toolboxitemid="atomics">\n';
+		xmlStr += '		    <category name="ATOMICOS" toolboxitemid="atomics">\n';
 		xmlStr += '		      <block type="logic_boolean" >\n';
 		xmlStr += '		        <field name="BOOL">TRUE</field>\n';
 		xmlStr += '		      </block>\n';
@@ -933,7 +979,7 @@
 		xmlStr += '		        </value>\n';
 		xmlStr += '		      </block>\n';
 		xmlStr += '		    </category>\n';
-		xmlStr += '		    <category name="CREATION">\n';
+		xmlStr += '		    <category name="CREACION">\n';
 		xmlStr += '			  <block type="action_start" >\n';
 		xmlStr += '			  </block>\n';
 		xmlStr +='			 <block type="action_start">\n';
@@ -970,7 +1016,7 @@
 		xmlStr +='		      </block>\n';
 		xmlStr +='		      </category>\n';
 		if(definedBehaviourNames.length > 0){
-			xmlStr +='		    <category name="BEHAVIOURS" toolboxitemid="custom" >\n';
+			xmlStr +='		    <category name="COMPORTAMIENTOS" toolboxitemid="custom" >\n';
 			//FETCH BEHAVIOUR
 			xmlStr +='		    </category>\n';
 		}

@@ -52,19 +52,18 @@ Blockly.JavaScript['action_start'] = function(block) {
 //This block is used to create an object.It takes a text block for the nme and properties definition statements.
 Blockly.Blocks['objetc_create'] = {
   init: function() {
-    //this.appendDummyInput()
-        //.appendField("OBJECT");
+    //this.setMutator(new Blockly.Mutator(""));
     this.setInputsInline(true);
     this.appendDummyInput()
         .appendField(new Blockly.FieldImage("icons/object.png", 45, 45, "*"));
     this.appendValueInput("objName")
         .setCheck("String")
-        //.appendField("Named");
     this.appendStatementInput('properties')
     .appendField('')
-    .setCheck("objetc_property");///////////
+    .setCheck("objetc_property");
     this.setPreviousStatement(true, null);
     this.setTooltip('');
+    this.setWarningText('MENSAJES:');
   },doActionJS : function(self, paramsMap){
     if(! Blockly.Blocks['action_start'].isLinkedToActionStart(self)){return '';}
 
@@ -116,10 +115,27 @@ Blockly.Blocks['objetc_create'] = {
 				}        
 		    }
 		}
-
 		return result;
+  },nameWasSet:function(block){
+  	var value_objname = Blockly.JavaScript.valueToCode(block, 'objName', Blockly.JavaScript.ORDER_ATOMIC);
+  	return 	(value_objname != undefined && value_objname != null && value_objname != '');
+  }/*,mutationToDom : function (workspace) {
+	var container = document.createElement('mutation');
+	return container;
+  },domToMutation : function (xmlElement) {
+		//this.updateShape_();
+  },decompose : function (workspace) {
+  	//var xmlStr = messagesAsTextListXml( getAllMessagesOf( this ) );
+	//var xmlObj =  Blockly.Xml.textToDom( xmlStr , workspace );
+  	//return Blockly.Xml.domToWorkspace( xmlObj , workspace);
+  
+  	var innerXml = messagesAsTextListXml( getAllMessagesOf( this ) );
+    var newBlockId = Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(innerXml), workspace)[0];
+    workspace.getBlockById(newBlockId).initSvg();
+    return workspace.getBlockById(newBlockId);
 
   }
+  */
 };
 
 Blockly.JavaScript['objetc_create'] = function(block) {
@@ -170,6 +186,7 @@ Blockly.Blocks['objetc_property'] = {
 
 Blockly.JavaScript['objetc_property'] = function(aBlock) {
   var value_name = Blockly.JavaScript.valueToCode(aBlock, 'name', Blockly.JavaScript.ORDER_ATOMIC);
+  if(value_name != undefined && value_name != null){value_name = removeInitialNumbers(value_name);}
   var value_value = Blockly.JavaScript.valueToCode(aBlock, 'value', Blockly.JavaScript.ORDER_ATOMIC);
   var code = Blockly.Blocks['objetc_property'].doActionJS(aBlock,{'name':value_name , 'value':value_value});
   return code;
@@ -241,7 +258,7 @@ Blockly.Blocks['method_create'] = {
       paramsAmount = value_params.split(',').length; 
     }
   	
-  	return {obj:null,method:{name:value_name,paramsAmount:paramsAmount}};
+  	return {obj:null,method:{name:value_name.replaceAll('\'',''),paramsAmount:paramsAmount}};
   }
 
 };
@@ -249,9 +266,19 @@ Blockly.Blocks['method_create'] = {
 Blockly.JavaScript['method_create'] = function(block) {
 	var value_name = Blockly.JavaScript.valueToCode(block, 'name', Blockly.JavaScript.ORDER_ATOMIC);
 	var value_params = Blockly.JavaScript.valueToCode(block, 'params', Blockly.JavaScript.ORDER_ATOMIC);
+	if(value_params != undefined && value_params != null ){
+		var originalList = eval(value_params);
+		var newList = [];
+		for(var i = 0; i < originalList.length; i++){
+			newList.push(removeInitialNumbers(originalList[i]));
+		}
+		value_params = '['+newList+']';
+
+	}
 	var value_instructions = Blockly.JavaScript.statementToCode(block, 'instructions');
 	var code = Blockly.Blocks['method_create'].doActionJS(block,{'name':value_name , 'params':value_params , 'instructions':value_instructions });
 	return code;
+		
 };
 
 
@@ -400,6 +427,48 @@ Blockly.Blocks['executor_param'] = {
   };
 
 
+
+Blockly.Blocks['example_dropdown'] = {
+  init: function() {
+	var options = [
+            [{'src': 'icons/sceneRepresentations/flower.png', 'width': 15, 'height': 15}, 'flower']
+            ];
+//    this.appendValueInput("fl").appendField("adsad").appendField(new Blockly.FieldDropdown(options), 'FLAG');
+
+  	this.appendDummyInput()
+        .appendField(new Blockly.FieldImage("icons/world.png", 25, 25));
+  	this.appendValueInput("x")
+        .setCheck("Number")
+        .setAlign(Blockly.ALIGN_CENTRE)
+        .appendField("x:");
+    this.appendValueInput("y")
+        .setCheck("Number")
+        .setAlign(Blockly.ALIGN_CENTRE)
+        .appendField("y:");
+    this.appendDummyInput()
+        .appendField('')
+        .appendField(new Blockly.FieldDropdown(options), 'FIELDNAME');
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour('#365485');
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function getMessagesOf(aBlockName){
 	var objs = getAllParentlessObjects();
 	var index = 0;
@@ -443,4 +512,86 @@ function getMessagesOf(aBlockName){
 
 	
 	return result;
+}
+
+
+function getAllMessagesOf(aBlock){
+
+	var metainfo;
+	var existingMethods;
+	var objs;
+	var targetBlock = null;
+	var messages;
+
+	if(aBlock.type == 'objetc_create'){
+		targetBlock = aBlock;
+	}else if(definedObjectNames.includes(aBlock.name)){
+		targetBlock = Blockly.Blocks[aBlock.type].getDecompose(workspace);
+	}
+
+	if(targetBlock != null){
+		
+		existingMethods = [];
+
+		//GET EXISTING METHODS
+		objs = getAllParentlessObjects();
+		for(var i = 0; i < objs.length; i++){
+			if(objs[i].type == 'action_start' && objs[i].getNextBlock() != undefined && objs[i].getNextBlock().id == targetBlock.id){
+				for(var j = 0; j < i; j++){
+					if( objs[j].type == 'action_start' && objs[j].getNextBlock() != undefined && objs[j].getNextBlock().type == 'method_create'){
+						metainfo = Blockly.Blocks['method_create'].getMetaInfo( objs[j].getNextBlock() );
+						existingMethods.push( metainfo.method.name );
+					}else if( definedBehaviourNames.includes(objs[j].type) ){
+						existingMethods.push(objs[j].type);
+					}
+				}
+				break;
+			}
+		}	
+
+		messages = Blockly.Blocks['objetc_create'].getMessagesOf(targetBlock,existingMethods);
+		
+		if(definedObjectNames.includes(aBlock.name)){
+			targetBlock.dispose();
+		}
+
+		return messages;
+	
+	}
+	return [];
+}	
+
+function messagesAsTextListXml(aList){
+	var result = '';
+	result += '<xml>';
+	if(aList.length > 0){
+		result += '<block type="lists_create_with">';
+		result += '<mutation items="'+aList.length+'"></mutation>';
+		for(var i = 0; i < aList.length; i++){
+			result += '<value name="ADD'+i+'">';
+			result += '<block type="text">';
+			result += '<field name="TEXT">'+aList[i]+'</field>';
+			result += '</block>';
+			result += '</value>';	    
+		}
+		result += '</block>';
+	}else{
+		result += '<block type="lists_create_with">';
+    	result += '<mutation items="0"></mutation>';
+  		result += '</block>';
+	}
+	result += '</xml>';
+	return result;
+}
+
+function isNumeric(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+function removeInitialNumbers(aString){
+	var firstNonNumericIndex = 0;
+	while(firstNonNumericIndex < aString.length && isNumeric(aString[firstNonNumericIndex])){
+		firstNonNumericIndex++;
+	}
+	return aString.substring(firstNonNumericIndex);
 }

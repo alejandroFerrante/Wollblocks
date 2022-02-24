@@ -61,6 +61,7 @@ function spaceInit(){
 
 	loadWorkspaceConent(getMainToolboxXmlString());
 
+	workspace.addChangeListener( onWorkspaceChange );
 }
 
 function getJSCodeForCurrentWorkspace(){
@@ -123,24 +124,28 @@ function mappinInfoComplete(aMappingInfo){
 function ObjectsAndBehavioursAsBlocks(){
 	//var defaultIcon = 'icons/Circle.png';	
 	var paramsMappings;
-	var valueMappings;
+	//var valueMappings;
 	var params;
 
 	for(var i = 0; i < definedObjectXmlContent.length; i++ ){
 		//if mapping complete
 		if(mappinInfoComplete(definedObjectsMappingInfo[i])){
 			paramsMappings = [];
-			valueMappings = [];
+			//valueMappings = [];
 			params = [];
 			for (var key in definedObjectsMappingInfo[i].replacements) { 
+				/*
 				if(definedObjectsMappingInfo[i].replacements[key].type == 'value' || definedObjectsMappingInfo[i].replacements[key].type == 'param'){
 					params.push(''+key);
 					if(definedObjectsMappingInfo[i].replacements[key].type == 'value'){valueMappings.push({k:''+key , v:definedObjectsMappingInfo[i].replacements[key].val });}
 					if(definedObjectsMappingInfo[i].replacements[key].type == 'param'){paramsMappings.push({k:''+key , v:definedObjectsMappingInfo[i].replacements[key].val });}
 
 				}
+				*/
+				params.push(''+key);
+				paramsMappings.push({k:''+key , v:definedObjectsMappingInfo[i].replacements[key].val });
 			}
-			createAliasXML(definedObjectNames[i],definedObjectsMappingInfo[i].icon,document.getElementById('mapping_color').value,params,paramsMappings,valueMappings, definedObjectXmlContent[i].join(' </br> '), 'obj' );
+			createAliasXML(definedObjectNames[i],definedObjectsMappingInfo[i].icon,document.getElementById('mapping_color_back').value,params,paramsMappings/*,valueMappings*/, definedObjectXmlContent[i].join(' </br> '),document.getElementById('mapping_show_names').checked, 'obj' );
 		}
 	}
 
@@ -148,17 +153,21 @@ function ObjectsAndBehavioursAsBlocks(){
 		//if mapping complete
 		if(mappinInfoComplete(definedBehavioursMappingInfo[i])){
 			paramsMappings = [];
-			valueMappings = [];
+			//valueMappings = [];
 			params = [];
 			for (var key in definedBehavioursMappingInfo[i].replacements) { 
+				/*
 				if(definedBehavioursMappingInfo[i].replacements[key].type == 'value' || definedBehavioursMappingInfo[i].replacements[key].type == 'param'){
 					params.push(''+key);
 					if(definedBehavioursMappingInfo[i].replacements[key].type == 'value'){valueMappings.push({k:''+key , v:definedBehavioursMappingInfo[i].replacements[key].val });}
 					if(definedBehavioursMappingInfo[i].replacements[key].type == 'param'){paramsMappings.push({k:''+key , v:definedBehavioursMappingInfo[i].replacements[key].val });}
 
 				}
+				*/
+				params.push(''+key);
+				paramsMappings.push({k:''+key , v:definedBehavioursMappingInfo[i].replacements[key].val });
 			}
-			createAliasXML(definedBehaviourNames[i],definedBehavioursMappingInfo[i].icon,document.getElementById('mapping_color').value,params,paramsMappings,valueMappings, definedBehaviourXmlContent[i].join(' '),'bh' );
+			createAliasXML(definedBehaviourNames[i],definedBehavioursMappingInfo[i].icon,document.getElementById('mapping_color_back').value,params,paramsMappings,/*valueMappings,*/ definedBehaviourXmlContent[i].join(' '),document.getElementById('mapping_show_names').checked,'bh' );
 		}
 	}
 
@@ -174,22 +183,36 @@ function getAllUnasignedValuesFrom(aString){
 	}
 }
 
-function createAliasXML(aliasBlockName, aliasBlockIconURL, aColor, paramsList, paramsReplacements, constantReplacements, innerBlockXML, type){
+function createAliasXML(aliasBlockName, aliasBlockIconURL, backColor, paramsList, paramsReplacements, innerBlockXML, showFieldNames, type){
   
   //REGISTER BLOCK
   var functionString = ''; 
   functionString += 'Blockly.Blocks[\''+aliasBlockName+'\'] = {\n';
   functionString += ' init: function() {\n';
-  functionString += 'this.appendDummyInput().appendField("'+aliasBlockName+'");';
-  functionString += '   this.appendDummyInput().appendField(new Blockly.FieldImage(\''+aliasBlockIconURL+'\', 50, 50, "*"));\n';
-  for(var i = 0; i < paramsList.length; i++){
-    functionString += '   this.appendValueInput("'+paramsList[i]+'").setCheck(null);\n';
-  }
-  functionString += '   this.setTooltip(\'\' );\n';
-  functionString += '   this.setMutator(new Blockly.Mutator(""));\n';
-  functionString += '   this.setColour(\''+aColor+'\');';
-  functionString += ' },\n';
+  functionString += '  this.appendDummyInput().appendField("'+aliasBlockName+'");';
+  functionString += '  this.appendDummyInput().appendField(new Blockly.FieldImage(\''+aliasBlockIconURL+'\', 50, 50, "*"));\n';
   
+  for(var i = 0; i < paramsReplacements.length; i++){
+	if(showFieldNames){
+  		functionString += '  this.appendValueInput("'+paramsReplacements[i].k+'").setCheck(null).appendField("'+paramsReplacements[i].v+'");\n';
+	}else{
+  		functionString += '  this.appendValueInput("'+paramsReplacements[i].k+'").setCheck(null);\n';
+	}  	
+  }
+
+/*
+  for(var i = 0; i < paramsList.length; i++){
+    functionString += '  this.appendValueInput("'+paramsList[i]+'").setCheck(null);\n';
+  }
+*/  
+  if(type == 'obj'){functionString += '	this.setWarningText(\'MENSAJES:\');';}
+  
+
+  functionString += '   this.setTooltip(\'\' );\n';
+  //functionString += '   this.setMutator(new Blockly.Mutator(""));\n';
+  functionString += '   this.setColour(\''+backColor+'\');';
+  functionString += ' },\n';
+ /* 
   functionString += ' mutationToDom : function (workspace) {\n';
   functionString += '   var container = document.createElement(\'mutation\');\n';
   functionString += '   return container;\n';
@@ -199,21 +222,33 @@ function createAliasXML(aliasBlockName, aliasBlockIconURL, aColor, paramsList, p
   functionString += ' domToMutation : function (xmlElement) {\n';
   functionString += '   this.updateShape_();\n';
   functionString += ' },\n';
-
-  functionString += ' decompose : function (workspace) {\n';
-  //functionString += '   var containerBlock = workspace.newBlock(\'printer\');\n';////////////////////////////////////////////
-  //functionString += '   containerBlock.initSvg();';
-  //functionString += '   return containerBlock';
-  
+*/
+  functionString += ' getDecompose : function (workspace) {\n';
   functionString += '   var innerXml = \'<xml> '+innerBlockXML+' </xml>\';\n';
   functionString += '   var newBlockId = Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(innerXml), workspace)[0];\n';
   functionString += '   workspace.getBlockById(newBlockId).initSvg();';
   functionString += '   return workspace.getBlockById(newBlockId);';
   functionString += ' },\n';
 
+  //functionString += ' decompose : function (workspace) {\n';
+  
+  //functionString += '   var containerBlock = workspace.newBlock(\'printer\');\n';////////////////////////////////////////////
+  //functionString += '   containerBlock.initSvg();';
+  //functionString += '   return containerBlock';
+  
+//  functionString += '   var innerXml = \'<xml> '+innerBlockXML+' </xml>\';\n';
+//  functionString += '   var newBlockId = Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(innerXml), workspace)[0];\n';
+//  functionString += '   workspace.getBlockById(newBlockId).initSvg();';
+//  functionString += '   return workspace.getBlockById(newBlockId);';
+  
+
+  //functionString += ' },\n';
+
+/*
   functionString += ' compose : function(containerBlock) {\n';
   functionString += '   this.updateShape_();\n';
   functionString += ' },\n';
+*/
 
   functionString += ' saveConnections : function(containerBlock) {},\n';
 
@@ -235,12 +270,13 @@ function createAliasXML(aliasBlockName, aliasBlockIconURL, aColor, paramsList, p
   functionString = '';
 
   functionString += 'Blockly.JavaScript[\''+aliasBlockName+'\'] = function(block) {\n';
-  functionString += '  var decomposed = block.decompose(Blockly.getMainWorkspace());\n';
+  //functionString += '  var decomposed = block.decompose(Blockly.getMainWorkspace());\n';
+  functionString += '  var decomposed = block.getDecompose(Blockly.getMainWorkspace());\n';
   functionString += '  var replacements = [';
-  for(var i = 0; i < constantReplacements.length; i++){
+  /*for(var i = 0; i < constantReplacements.length; i++){
     if(i > 0){functionString += ',';}
     functionString += '{ k:\''+constantReplacements[i].k+'\' , v: '+constantReplacements[i].v+'}';
-  }
+  }*/
   functionString +='];\n';
   for(var i = 0; i < paramsReplacements.length; i++){
     functionString += '   replacements.push({k:\''+paramsReplacements[i].k+'\' , v: Blockly.JavaScript.valueToCode(block, \''+paramsReplacements[i].v+'\', Blockly.JavaScript.ORDER_ATOMIC) });\n';
@@ -259,17 +295,6 @@ function createAliasXML(aliasBlockName, aliasBlockIconURL, aColor, paramsList, p
   functionString = 'Blockly.getMainWorkspace().getToolbox().clearSelection();\n';
 
   eval(functionString);
-}
-
-
-function getAllMethodsOfObject(anObject){
-	var result = [];
-	for(var propt in anObject){
-	    if(typeof propt === 'function'){
-	    	result.push(propt);
-	    }
-	    //console.log(propt + ': ' + obj[propt]);
-	}
 }
 
 function getAllParentlessObjects(){
@@ -443,3 +468,4 @@ function getSceneCodeAsString(){
 	}
 	return result;
 }
+
