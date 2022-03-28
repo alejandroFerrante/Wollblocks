@@ -335,7 +335,11 @@ Blockly.Blocks['executor'] = {
     this.setHelpUrl('http://www.example.com/');
     //this.setColour('#d69833');
     this.setColour('#751072');
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
   },doActionJS:function(self, paramsMap,metaInfo){
+  	  if(! Blockly.Blocks['action_start'].isLinkedToActionStart(self)){return '';}
+
   	  var value_executor = paramsMap['executor'];
   	  var value_method = paramsMap['method'];
 	  var value_params = paramsMap['params'];
@@ -470,12 +474,15 @@ Blockly.Blocks['example_dropdown'] = {
 
 
 function getMessagesOf(aBlockName){
+	var iterateAll = true;
+
 	var objs = getAllParentlessObjects();
 	var index = 0;
 	var found = false;
 	var result = null;
 	var existingMethods = [];
 		
+	//find object
 	while(index < objs.length){
 		if(objs[index].type == 'action_start' && objs[index].getNextBlock() != null && objs[index].getNextBlock().type == 'objetc_create'){
 			if( Blockly.JavaScript.valueToCode(objs[index].getNextBlock(), 'objName', Blockly.JavaScript.ORDER_ATOMIC).replaceAll('\'','') == aBlockName){
@@ -492,11 +499,13 @@ function getMessagesOf(aBlockName){
 
 	if(found){
 		//collect exiting methods
-		for(var j = 0; j < index; j++){
-			if(objs[j].type == 'action_start' && objs[j].getNextBlock() != null && objs[j].getNextBlock().type == 'method_create'){
-				existingMethods.push( Blockly.JavaScript.valueToCode(objs[j].getNextBlock(), 'name', Blockly.JavaScript.ORDER_ATOMIC).replaceAll('\'','') );
-			}else if(definedBehaviourNames.includes(objs[j].type)){
-				existingMethods.push(objs[j].type);
+		for(var j = 0; ( (iterateAll && j < objs.length ) || (j < index)); j++){
+			if(j != index){
+				if(objs[j].type == 'action_start' && objs[j].getNextBlock() != null && objs[j].getNextBlock().type == 'method_create'){
+					existingMethods.push( Blockly.JavaScript.valueToCode(objs[j].getNextBlock(), 'name', Blockly.JavaScript.ORDER_ATOMIC).replaceAll('\'','') );
+				}else if(definedBehaviourNames.includes(objs[j].type)){
+					existingMethods.push(objs[j].type);
+				}
 			}
 		}
 
@@ -516,7 +525,6 @@ function getMessagesOf(aBlockName){
 
 
 function getAllMessagesOf(aBlock){
-
 	var metainfo;
 	var existingMethods;
 	var objs;

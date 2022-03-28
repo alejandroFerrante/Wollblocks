@@ -18,6 +18,7 @@ var sceneSteps;
 var sceneAlertErrors;
 
 function spaceInit(){
+	sceneAlertErrors = true;//////////////////////////////7
 	definedObjectNames = [];
 	definedBehaviourNames = [];
 	definedObjectXmlContent = [];
@@ -316,6 +317,7 @@ function getAllParentlessObjects(){
 }
 
 function getSceneExecution(alertErrors){
+	var iterateAll = true;
 	sceneAlertErrors = alertErrors;
 
 	var objs = getAllParentlessObjects();
@@ -330,48 +332,59 @@ function getSceneExecution(alertErrors){
 	for(var i = 0; i < objs.length && !sceneErrorsFound; i++){
 		if(Blockly.JavaScript[ objs[i].type ] != undefined){
 			
-			if(objs[i].type == 'executor'){
-				//colllect meta info
-				partialMetaInfo = {objects:[],methods:{}};
-				for(var j = 0; j < i; j++){
-					if(objs[j].type == 'action_start'){
-						
-						if(objs[j].getNextBlock() != null && objs[j].getNextBlock().type == 'method_create'){
-							metaInfo = Blockly.Blocks['method_create'].getMetaInfo(objs[j].getNextBlock());
-							if(metaInfo.method.name != null && metaInfo.method.paramsAmount != null){
-								partialMetaInfo.methods[metaInfo.method.name] = metaInfo.method.paramsAmount;
-							}
-						}
+			if(objs[i].type == 'action_start' && objs[i].getNextBlock() != undefined && objs[i].getNextBlock() != null && objs[i].getNextBlock().type == 'executor'){
+					
 
-						if(objs[j].getNextBlock() != null && objs[j].getNextBlock().type == 'objetc_create'){ 
-							metaInfo = Blockly.Blocks['objetc_create'].getMetaInfo(objs[j].getNextBlock());
-							if(metaInfo.obj != null){
-								partialMetaInfo.objects.push(metaInfo.obj);
-							}
-						}
-					}else if(definedObjectNames.includes(objs[j].type)){
-						metaInfo = Blockly.Blocks[objs[j].type].getMetaInfo(objs[j]);
-						if(metaInfo.obj != null){
-							partialMetaInfo.objects.push(metaInfo.obj);
-						}
+					//colllect meta info
+					partialMetaInfo = {objects:[],methods:{}};
+					for(var j = 0; ( (iterateAll && j < objs.length) || (j < i) ); j++){
+						if(j != i){
+							if(objs[j].type == 'action_start'){
+								
+								if(objs[j].getNextBlock() != null && objs[j].getNextBlock().type == 'method_create'){
+									metaInfo = Blockly.Blocks['method_create'].getMetaInfo(objs[j].getNextBlock());
+									if(metaInfo.method.name != null && metaInfo.method.paramsAmount != null){
+										partialMetaInfo.methods[metaInfo.method.name] = metaInfo.method.paramsAmount;
+									}
+								}
 
-					}else if(definedBehaviourNames.includes(objs[j].type)){
-						metaInfo = Blockly.Blocks[objs[j].type].getMetaInfo(objs[j]);
-						if(metaInfo.method.name != null && metaInfo.method.paramsAmount != null){
-							partialMetaInfo.methods[metaInfo.method.name] = metaInfo.method.paramsAmount;
+								if(objs[j].getNextBlock() != null && objs[j].getNextBlock().type == 'objetc_create'){ 
+									metaInfo = Blockly.Blocks['objetc_create'].getMetaInfo(objs[j].getNextBlock());
+									if(metaInfo.obj != null){
+										partialMetaInfo.objects.push(metaInfo.obj);
+									}
+								}
+							}else if(definedObjectNames.includes(objs[j].type)){
+								metaInfo = Blockly.Blocks[objs[j].type].getMetaInfo(objs[j]);
+								if(metaInfo.obj != null){
+									partialMetaInfo.objects.push(metaInfo.obj);
+								}
+
+							}else if(definedBehaviourNames.includes(objs[j].type)){
+								metaInfo = Blockly.Blocks[objs[j].type].getMetaInfo(objs[j]);
+								if(metaInfo.method.name != null && metaInfo.method.paramsAmount != null){
+									partialMetaInfo.methods[metaInfo.method.name] = metaInfo.method.paramsAmount;
+								}
+							}
 						}
 					}
-				}
 
-				res = Blockly.JavaScript['executor'](objs[i],partialMetaInfo);
-				//DETECT ERROR
-				if(typeof res === 'string'){
-					//console.log(res);
-					strsToEval.push(res);
-				}else{
-					break;
-					sceneErrorsFound = true;
-				}
+					var current = objs[i].getNextBlock();
+					while(current != undefined && current != null && current.type == 'executor'){
+
+						res = Blockly.JavaScript['executor'](current,partialMetaInfo);
+						//DETECT ERROR
+						if(typeof res === 'string'){
+							//console.log(res);
+							strsToEval.push(res);
+						}else{
+							break;
+							sceneErrorsFound = true;
+						}
+
+						current = current.getNextBlock();
+
+					}
 
 			}else{
 				res = Blockly.JavaScript[ objs[i].type ](objs[i]);
@@ -401,6 +414,7 @@ function doPlayScene(alertErrors){
 }
 
 function getSceneCodeAsString(){
+	var iterateAll = true;
 	result = [];
 
 	var objs = getAllParentlessObjects();
@@ -415,46 +429,56 @@ function getSceneCodeAsString(){
 	for(var i = 0; i < objs.length && !sceneErrorsFound; i++){
 		if(Blockly.JavaScript[ objs[i].type ] != undefined){
 			
-			if(objs[i].type == 'executor'){
+			if(objs[i].type == 'action_start' && objs[i].getNextBlock() != undefined && objs[i].getNextBlock() != null && objs[i].getNextBlock().type == 'executor'){
+			
 				//colllect meta info
 				partialMetaInfo = {objects:[],methods:{}};
-				for(var j = 0; j < i; j++){
-					if(objs[j].type == 'action_start'){
-						
-						if(objs[j].getNextBlock() != null && objs[j].getNextBlock().type == 'method_create'){
-							metaInfo = Blockly.Blocks['method_create'].getMetaInfo(objs[j].getNextBlock());
+				for(var j = 0; ( (iterateAll && j < objs.length) || (j < i) ); j++){
+					if(j != i){
+						if(objs[j].type == 'action_start'){
+							
+							if(objs[j].getNextBlock() != null && objs[j].getNextBlock().type == 'method_create'){
+								metaInfo = Blockly.Blocks['method_create'].getMetaInfo(objs[j].getNextBlock());
+								if(metaInfo.method.name != null && metaInfo.method.paramsAmount != null){
+									partialMetaInfo.methods[metaInfo.method.name] = metaInfo.method.paramsAmount;
+								}
+							}
+
+							if(objs[j].getNextBlock() != null && objs[j].getNextBlock().type == 'objetc_create'){ 
+								metaInfo = Blockly.Blocks['objetc_create'].getMetaInfo(objs[j].getNextBlock());
+								if(metaInfo.obj != null){
+									partialMetaInfo.objects.push(metaInfo.obj);
+								}
+							}
+						}else if(definedObjectNames.includes(objs[j].type)){
+							metaInfo = Blockly.Blocks[objs[j].type].getMetaInfo(objs[j]);
+							if(metaInfo.obj != null){
+								partialMetaInfo.objects.push(metaInfo.obj);
+							}
+
+						}else if(definedBehaviourNames.includes(objs[j].type)){
+							metaInfo = Blockly.Blocks[objs[j].type].getMetaInfo(objs[j]);
 							if(metaInfo.method.name != null && metaInfo.method.paramsAmount != null){
 								partialMetaInfo.methods[metaInfo.method.name] = metaInfo.method.paramsAmount;
 							}
 						}
-
-						if(objs[j].getNextBlock() != null && objs[j].getNextBlock().type == 'objetc_create'){ 
-							metaInfo = Blockly.Blocks['objetc_create'].getMetaInfo(objs[j].getNextBlock());
-							if(metaInfo.obj != null){
-								partialMetaInfo.objects.push(metaInfo.obj);
-							}
-						}
-					}else if(definedObjectNames.includes(objs[j].type)){
-						metaInfo = Blockly.Blocks[objs[j].type].getMetaInfo(objs[j]);
-						if(metaInfo.obj != null){
-							partialMetaInfo.objects.push(metaInfo.obj);
-						}
-
-					}else if(definedBehaviourNames.includes(objs[j].type)){
-						metaInfo = Blockly.Blocks[objs[j].type].getMetaInfo(objs[j]);
-						if(metaInfo.method.name != null && metaInfo.method.paramsAmount != null){
-							partialMetaInfo.methods[metaInfo.method.name] = metaInfo.method.paramsAmount;
-						}
 					}
-				}
 
-				res = Blockly.JavaScript['executor'](objs[i],partialMetaInfo);
+				}
 				
-				//DETECT ERROR
-				if(typeof res === 'string'){
-					result.push( res.replaceAll('\n','') );
-				}else{
-					result.push('<ERROR FOUND>');
+				var current = objs[i].getNextBlock();
+				while(current != undefined && current != null && current.type == 'executor'){
+					
+					res = Blockly.JavaScript['executor'](current,partialMetaInfo);
+					
+					//DETECT ERROR
+					if(typeof res === 'string'){
+						result.push( res.replaceAll('\n','') );
+					}else{
+						result.push('<ERROR FOUND>');
+					}
+
+					current = current.getNextBlock();
 				}
 
 			}else{
