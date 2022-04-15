@@ -195,9 +195,9 @@ function createAliasXML(aliasBlockName, aliasBlockIconURL, backColor, paramsList
   
   for(var i = 0; i < paramsReplacements.length; i++){
 	if(showFieldNames){
-  		functionString += '  this.appendValueInput("'+paramsReplacements[i].k+'").setCheck(null).appendField("'+paramsReplacements[i].v+'");\n';
+  		functionString += '  this.appendValueInput("'+paramsReplacements[i].v+'").setCheck(null).appendField("'+paramsReplacements[i].v+'");\n';
 	}else{
-  		functionString += '  this.appendValueInput("'+paramsReplacements[i].k+'").setCheck(null);\n';
+  		functionString += '  this.appendValueInput("'+paramsReplacements[i].v+'").setCheck(null);\n';
 	}  	
   }
 

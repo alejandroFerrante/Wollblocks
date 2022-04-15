@@ -277,7 +277,7 @@
 	});
 
 	function onWorkspaceChange( event){
-		if(localSwitch && (event.type == Blockly.Events.BLOCK_CHANGE  || event.type == Blockly.Events.BLOCK_CREATE || event.type == Blockly.Events.BLOCK_MOVE)){
+		if(localSwitch && (event.type == Blockly.Events.BLOCK_CHANGE  || event.type == Blockly.Events.BLOCK_CREATE /*|| event.type == Blockly.Events.BLOCK_MOVE*/)){
 			
 			var objs = getAllParentlessObjects();
 			for(var i = 0; i < objs.length; i++){
