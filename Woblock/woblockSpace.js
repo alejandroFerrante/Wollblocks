@@ -146,7 +146,7 @@ function ObjectsAndBehavioursAsBlocks(){
 				params.push(''+key);
 				paramsMappings.push({k:''+key , v:definedObjectsMappingInfo[i].replacements[key].val });
 			}
-			createAliasXML(definedObjectNames[i],definedObjectsMappingInfo[i].icon,document.getElementById('mapping_color_back').value,params,paramsMappings/*,valueMappings*/, definedObjectXmlContent[i].join(' </br> '),document.getElementById('mapping_show_names').checked, 'obj' );
+			createAliasXML(definedObjectNames[i],definedObjectsMappingInfo[i].icon,definedObjectsMappingInfo[i].color,params,paramsMappings/*,valueMappings*/, definedObjectXmlContent[i].join(' </br> '),document.getElementById('mapping_show_names').checked, 'obj' );
 		}
 	}
 

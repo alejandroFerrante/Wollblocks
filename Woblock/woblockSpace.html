@@ -335,8 +335,14 @@
 				document.getElementById('mappingSection').style.display = 'none';
 				document.getElementById('sceneDiv').style.display = 'block';
 			}
-			if(newTab == 'Object' && newIndex >= 0 && newIndex < definedObjectXmlContent.length){newContent = definedObjectXmlContent[newIndex];}
-			if(newTab == 'Behaviour' && newIndex >= 0 && newIndex < definedBehaviourXmlContent.length){newContent = definedBehaviourXmlContent[newIndex];}
+			if(newTab == 'Object' && newIndex >= 0 && newIndex < definedObjectXmlContent.length){
+				newContent = definedObjectXmlContent[newIndex];
+				document.getElementById('mapping_color_back').value = definedObjectsMappingInfo[newIndex].color;
+			}
+			if(newTab == 'Behaviour' && newIndex >= 0 && newIndex < definedBehaviourXmlContent.length){
+				newContent = definedBehaviourXmlContent[newIndex];
+				document.getElementById('mapping_color_back').value = definedBehavioursMappingInfo[newIndex].color; 
+			}
 			if(newContent != null && newContent != undefined && newContent.length > 0){
 				injectXmlToWorkspace(newContent);
 			}
@@ -476,6 +482,7 @@
 
 				currentTab = 'Object';
 				currentIndex = definedObjectXmlContent.length - 1;
+				document.getElementById('mapping_color_back').value = '#ffffffff';
 				selectCurrentTab();
 				loadWorkspaceConent(getObjectToolboxXmlString());
 
@@ -520,6 +527,7 @@
 
 				currentTab = 'Behaviour';
 				currentIndex = definedBehaviourXmlContent.length - 1;
+				document.getElementById('mapping_color_back').value = '#ffffffff';
 				selectCurrentTab();
 				loadWorkspaceConent(getBehaviourToolboxXmlString());
 			}
@@ -560,6 +568,7 @@
 						definedObjectsMappingInfo[currentIndex] = {};
 						definedObjectsMappingInfo[currentIndex].icon = 'icons/representations/'+document.getElementById('icons').value; 
 						definedObjectsMappingInfo[currentIndex].replacements = {};
+						definedObjectsMappingInfo[currentIndex].color = document.getElementById('mapping_color_back').value;
 
 						replacementValue = document.getElementById('mappingInput_'+i);
 						replacementParam = document.getElementById('replacementName__'+i);
