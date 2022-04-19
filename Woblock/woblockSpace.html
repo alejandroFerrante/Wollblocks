@@ -752,7 +752,7 @@
 		var xmlStr = '';
 		xmlStr += '		    <category name="ATOMICOS" toolboxitemid="atomics">';
 
-		xmlStr += '			<block type="example_dropdown" ></block>';
+		//xmlStr += '			<block type="example_dropdown" ></block>';
 
 		xmlStr += '		      <block type="logic_boolean" >';
 		xmlStr += '		        <field name="BOOL">TRUE</field>';
@@ -849,6 +849,8 @@
 		xmlStr += '		      </block>';
 		xmlStr += '		      </category>';
 		xmlStr += '		    <category name="EJECUCION">';
+		xmlStr +='			  <block type="action_start">';
+		xmlStr += '		      </block>';
 		xmlStr += '		      <block type="executor" >';		
 		xmlStr += '		      	<value name="executor">';
 		xmlStr += '		        	<block type="text"><field name="TEXT">anObj</field></block>';
