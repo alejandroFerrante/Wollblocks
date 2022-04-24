@@ -17,6 +17,8 @@ var sceneErrorsFound;
 var sceneSteps;
 var sceneAlertErrors;
 
+var clickEventFunction;
+
 function spaceInit(){
 	sceneAlertErrors = true;//////////////////////////////7
 	definedObjectNames = [];
@@ -62,7 +64,68 @@ function spaceInit(){
 
 	loadWorkspaceConent(getMainToolboxXmlString());
 
-	workspace.addChangeListener( onWorkspaceChange );
+	//workspace.addChangeListener( onWorkspaceChange );
+	clickEventFunction = Blockly.Events.Click;
+	Blockly.registry.unregister("event", "click"); 
+	Blockly.registry.register("event", "click",
+    function(a,b,c){ 
+    	var funk = clickEventFunction.bind(this); 
+    	funk(a,b,c);
+    	//clickEventFunction(a,b,c); 
+    	if(c == 'block' && (a.type == 'objetc_create' || definedObjectNames.includes(a.type) ) ){
+    		updateMessagesFor(a);
+    	}
+    	//console.log("a:"+a+" b:"+b+" c: "+c);
+    });
+
+}
+
+function updateMessagesFor(aBlock){
+	var objs = getAllParentlessObjects();
+	var iterateAll = true;
+	var existingMethods = [];
+	
+	//find object index
+	var found = false;
+	var index = 0;
+	while(index < objs.length){
+		if(objs[index].type == 'action_start' && objs[index].getNextBlock() != null && objs[index].getNextBlock().type == 'objetc_create'){
+			if( objs[index].getNextBlock().id == aBlock.id){
+				found = true;
+				break;
+			}
+		}else if( objs[index].id == aBlock.id ){
+			found = true;
+			break;
+		}
+		index++;
+	}
+
+	if(found){
+		for(var j = 0; ( (iterateAll && j < objs.length ) || (j < index)); j++){
+			if(j != index){
+				if(objs[j].type == 'action_start' && objs[j].getNextBlock() != null && objs[j].getNextBlock().type == 'method_create'){
+					existingMethods.push( Blockly.JavaScript.valueToCode(objs[j].getNextBlock(), 'name', Blockly.JavaScript.ORDER_ATOMIC).replaceAll('\'','') );
+				}else if(definedBehaviourNames.includes(objs[j].type)){
+					existingMethods.push(objs[j].type);
+				}
+			}
+		}
+		var msgs = [];
+		if(aBlock.type == 'objetc_create'){
+			msgs = Blockly.Blocks['objetc_create'].getMessagesOf(aBlock,existingMethods);
+		}else if(definedObjectNames.includes(aBlock.type)){
+			var decomposed = aBlock.getDecompose(Blockly.getMainWorkspace());
+			msgs = Blockly.Blocks['objetc_create'].getMessagesOf(decomposed.getNextBlock(),existingMethods);
+			decomposed.dispose();
+		}
+
+		var msgsStr = "MENSAJES:";
+		for(var i = 0; i < msgs.length; i++){
+			msgsStr += "\n"+msgs[i];
+		}
+		aBlock.setWarningText(msgsStr);
+	}
 }
 
 function getJSCodeForCurrentWorkspace(){

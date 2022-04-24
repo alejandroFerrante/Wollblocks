@@ -271,7 +271,6 @@
   		spaceInit();
 	};
 
-
 	$( "#code_generate" ).click(function() {
 		$('#code_container')[0].innerHTML = /*getJSCodeForCurrentWorkspace().replaceAll('\n','<br/>');*/ getSceneCodeAsString().join('<br/>');
 	});
@@ -584,6 +583,7 @@
 						definedBehavioursMappingInfo[currentIndex] = {};
 						definedBehavioursMappingInfo[currentIndex].icon = 'icons/representations/'+document.getElementById('icons').value;
 						definedBehavioursMappingInfo[currentIndex].replacements = {};
+						definedBehavioursMappingInfo[currentIndex].color = document.getElementById('mapping_color_back').value;
 						
 						replacementValue = document.getElementById('mappingInput_'+i);
 						replacementParam = document.getElementById('replacementName__'+i);
@@ -599,8 +599,6 @@
 			}
 		}
 	}
-
-
 
 	function onIconSelected(){
 		document.getElementById('selectedIcon').src = 'icons/representations/'+document.getElementById('icons').value;
