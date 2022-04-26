@@ -51,33 +51,32 @@ function spaceInit(){
 		oneBasedIndex : true
 	};
 	 
-	/* Inject your workspace */ 
-	//var workspace = Blockly.inject(/* TODO: Add ID of div to inject Blockly into */, options);
+	// Inject workspace 
 	workspace = Blockly.inject('blocklyDiv', options);
-	/* Load Workspace Blocks from XML to workspace. Remove all code below if no blocks to load */
 	 
-	/* TODO: Change workspace blocks XML ID if necessary. Can export workspace blocks XML from Workspace Factory. */
+	// Load blocks to workspace
 	workspaceBlocks = document.getElementById('workspaceBlocks'); 
-	 
-	/* Load blocks to workspace. */
 	Blockly.Xml.domToWorkspace(workspaceBlocks, workspace);
 
 	loadWorkspaceConent(getMainToolboxXmlString());
 
-	//workspace.addChangeListener( onWorkspaceChange );
+	workspace.addChangeListener( onWorkspaceChange );
+	
+
+/*
 	clickEventFunction = Blockly.Events.Click;
 	Blockly.registry.unregister("event", "click"); 
 	Blockly.registry.register("event", "click",
     function(a,b,c){ 
+    	//if(a.type == 'text'){return function(){};}
     	var funk = clickEventFunction.bind(this); 
     	funk(a,b,c);
     	//clickEventFunction(a,b,c); 
     	if(c == 'block' && (a.type == 'objetc_create' || definedObjectNames.includes(a.type) ) ){
     		updateMessagesFor(a);
     	}
-    	//console.log("a:"+a+" b:"+b+" c: "+c);
     });
-
+*/
 }
 
 function updateMessagesFor(aBlock){

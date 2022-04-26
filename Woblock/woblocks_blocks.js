@@ -92,6 +92,9 @@ Blockly.Blocks['objetc_create'] = {
     
     return code;
   },
+  updateShape_: function(pxchecked) {
+  	alert('updateShape_');
+  },
   getMetaInfo:function(self){
   	var value_objname = Blockly.JavaScript.valueToCode(self, 'objName', Blockly.JavaScript.ORDER_ATOMIC);
 
@@ -432,37 +435,6 @@ Blockly.Blocks['executor_param'] = {
 
 
 
-Blockly.Blocks['example_dropdown'] = {
-  init: function() {
-	var options = [
-            [{'src': 'icons/sceneRepresentations/flower.png', 'width': 15, 'height': 15}, 'flower']
-            ];
-//    this.appendValueInput("fl").appendField("adsad").appendField(new Blockly.FieldDropdown(options), 'FLAG');
-
-  	this.appendDummyInput()
-        .appendField(new Blockly.FieldImage("icons/world.png", 25, 25));
-  	this.appendValueInput("x")
-        .setCheck("Number")
-        .setAlign(Blockly.ALIGN_CENTRE)
-        .appendField("x:");
-    this.appendValueInput("y")
-        .setCheck("Number")
-        .setAlign(Blockly.ALIGN_CENTRE)
-        .appendField("y:");
-    this.appendDummyInput()
-        .appendField('')
-        .appendField(new Blockly.FieldDropdown(options), 'FIELDNAME');
-    this.setPreviousStatement(true, null);
-    this.setNextStatement(true, null);
-    this.setColour('#365485');
-  }
-};
-
-
-
-
-
-
 
 
 
@@ -525,6 +497,7 @@ function getMessagesOf(aBlockName){
 
 
 function getAllMessagesOf(aBlock){
+	var iterateAll = true;
 	var metainfo;
 	var existingMethods;
 	var objs;
@@ -545,7 +518,7 @@ function getAllMessagesOf(aBlock){
 		objs = getAllParentlessObjects();
 		for(var i = 0; i < objs.length; i++){
 			if(objs[i].type == 'action_start' && objs[i].getNextBlock() != undefined && objs[i].getNextBlock().id == targetBlock.id){
-				for(var j = 0; j < i; j++){
+				for(var j = 0; ( (iterateAll && j < objs.length) || j < i); j++){
 					if( objs[j].type == 'action_start' && objs[j].getNextBlock() != undefined && objs[j].getNextBlock().type == 'method_create'){
 						metainfo = Blockly.Blocks['method_create'].getMetaInfo( objs[j].getNextBlock() );
 						existingMethods.push( metainfo.method.name );
